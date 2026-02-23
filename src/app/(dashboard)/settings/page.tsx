@@ -1,0 +1,261 @@
+'use client';
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Loader2, User, Shield, Phone, Mail, Fingerprint, History, LogOut, CheckCircle2 } from 'lucide-react';
+import { usersApi } from '@/services/users.api';
+import { securityApi } from '@/services/security.api';
+import { useAuthStore } from '@/store/auth.store';
+import { toast } from 'sonner';
+import { cn, getErrorMessage } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
+const profileSchema = z.object({
+    firstName: z.string().min(1),
+    lastName: z.string().min(1),
+    phone: z.string().optional(),
+});
+type ProfileForm = z.infer<typeof profileSchema>;
+
+const inputCls = 'w-full px-6 py-4 bg-muted/40 border border-border/60 rounded-2xl text-sm font-bold text-foreground placeholder:text-muted-foreground/30 placeholder:uppercase placeholder:text-[10px] placeholder:tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/40 focus:bg-card transition-all duration-300';
+const labelCls = 'block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2.5 ml-1';
+
+export default function SettingsPage() {
+    const qc = useQueryClient();
+    const { user: storeUser, setAuth, accessToken, refreshToken } = useAuthStore();
+
+    const { data: profileRes, isLoading } = useQuery({
+        queryKey: ['profile'],
+        queryFn: usersApi.getProfile,
+        select: r => r.data,
+    });
+
+    const { data: mfaRes } = useQuery({
+        queryKey: ['mfa-status'],
+        queryFn: securityApi.getMfaStatus,
+        select: r => r.data,
+    });
+
+    const { data: sessionsRes } = useQuery({
+        queryKey: ['sessions'],
+        queryFn: securityApi.getSessions,
+        select: r => r.data ?? [],
+    });
+
+    const profile = profileRes ?? storeUser;
+    const mfa = mfaRes;
+    const sessions = sessionsRes ?? [];
+
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileForm>({
+        resolver: zodResolver(profileSchema),
+        values: profile ? { firstName: profile.firstName, lastName: profile.lastName, phone: profile.phone ?? '' } : undefined,
+    });
+
+    const updateProfile = useMutation({
+        mutationFn: (data: ProfileForm) => usersApi.updateProfile(data),
+        onSuccess: (res) => {
+            const updatedUser = res.data;
+            if (updatedUser && accessToken && refreshToken) {
+                setAuth(updatedUser, accessToken, refreshToken);
+            }
+            qc.invalidateQueries({ queryKey: ['profile'] });
+            toast.success('Core Identity Updated');
+        },
+        onError: (err) => toast.error(getErrorMessage(err)),
+    });
+
+    const revokeSession = useMutation({
+        mutationFn: (id: string) => securityApi.revokeSession(id),
+        onSuccess: () => { qc.invalidateQueries({ queryKey: ['sessions'] }); toast.success('Access Terminal Revoked'); },
+        onError: (err) => toast.error(getErrorMessage(err)),
+    });
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 gap-4">
+                <Loader2 className="h-10 w-10 animate-spin text-primary/40" />
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] animate-pulse">Decrypting Identity Vault...</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="centered-container py-12 max-w-4xl animate-fade-in space-y-12">
+            {/* Header */}
+            <div className="space-y-2">
+                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                    System Configuration
+                </div>
+                <h1 className="text-4xl lg:text-5xl font-bold font-display tracking-tight text-foreground">Settings</h1>
+                <p className="text-muted-foreground font-medium text-lg italic">Control your platform identity and security protocols.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+                <div className="md:col-span-12 lg:col-span-8 space-y-8">
+                    {/* Identity Section */}
+                    <Card className="rounded-[2.5rem] border-none shadow-2xl overflow-hidden bg-card/60">
+                        <div className="p-8 space-y-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <User className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider">Identity Console</h2>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Personal Profile Information</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleSubmit((d) => updateProfile.mutate(d))} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className={labelCls}>First Name</label>
+                                        <input {...register('firstName')} className={inputCls} />
+                                        {errors.firstName && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className={labelCls}>Last Name</label>
+                                        <input {...register('lastName')} className={inputCls} />
+                                        {errors.lastName && <p className="text-destructive text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className={labelCls}>Phone Protocol</label>
+                                    <div className="relative group">
+                                        <input {...register('phone')} placeholder="+00 0000000000" className={inputCls} />
+                                        <Phone className="absolute right-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-focus-within:text-primary transition-colors" />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className={labelCls}>Authorized Email (Locked)</label>
+                                    <div className="relative group">
+                                        <input value={profile?.email ?? ''} disabled className={inputCls + ' opacity-50 cursor-not-allowed bg-muted/20'} />
+                                        <Mail className="absolute right-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20" />
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <Button
+                                        type="submit"
+                                        disabled={isSubmitting || updateProfile.isPending}
+                                        className="h-14 px-10 rounded-[2rem] font-bold tracking-widest uppercase text-xs shadow-xl shadow-primary/20"
+                                    >
+                                        {(isSubmitting || updateProfile.isPending) ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            'Commit Changes'
+                                        )}
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Card>
+
+                    {/* Terminal Access Section */}
+                    <Card className="rounded-[2.5rem] border-none shadow-2xl overflow-hidden glass">
+                        <div className="p-8 space-y-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
+                                    <History className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider">Access Terminals</h2>
+                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Auth Sessions</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-4">
+                                {sessions.map((s: any) => (
+                                    <div key={s.id} className="flex items-center justify-between p-6 bg-muted/40 border border-border/40 rounded-3xl group hover:bg-card hover:shadow-lg transition-all">
+                                        <div className="space-y-1">
+                                            <p className="text-xs font-bold text-foreground font-mono tracking-wider">{s.ipAddress ?? '0.0.0.0'}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed line-clamp-1 max-w-[200px] md:max-w-md">
+                                                {s.userAgent ?? 'Unknown Device Access'}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => revokeSession.mutate(s.id)}
+                                            className="h-10 rounded-xl text-destructive hover:bg-destructive/5 hover:text-destructive font-bold uppercase tracking-widest text-[9px]"
+                                        >
+                                            <LogOut className="h-3 w-3 mr-2" /> Revoke
+                                        </Button>
+                                    </div>
+                                ))}
+                                {sessions.length === 0 && (
+                                    <div className="py-12 text-center text-muted-foreground/40 italic font-medium">
+                                        No active terminals detected.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+
+                <div className="md:col-span-12 lg:col-span-4 self-start space-y-8">
+                    {/* Security Status Card */}
+                    <Card className="rounded-[2.5rem] border-none shadow-2xl bg-sidebar p-8 text-white space-y-8 overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16" />
+
+                        <div className="space-y-6 relative">
+                            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                                <Shield className="h-6 w-6" />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-xl font-bold font-display">Security Shield</h3>
+                                <p className="text-sm text-sidebar-foreground/60 font-medium leading-relaxed">
+                                    Account protection is currently active with enterprise-grade encryption.
+                                </p>
+                            </div>
+
+                            <div className="pt-6 border-t border-white/10 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">2FA STATUS</span>
+                                    <Badge className={cn(
+                                        "rounded-lg px-2 py-0.5 text-[9px] border-none",
+                                        mfa?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
+                                    )}>
+                                        {mfa?.enabled ? 'PROTECTED' : 'AT RISK'}
+                                    </Badge>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">TERMINALS</span>
+                                    <span className="text-xs font-bold font-mono">{sessions.length}</span>
+                                </div>
+                            </div>
+
+                            <div className="pt-4">
+                                <Button variant="secondary" className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px]">
+                                    Manage MFA
+                                </Button>
+                            </div>
+                        </div>
+                    </Card>
+
+                    {/* Trust Indicators */}
+                    <div className="px-4 space-y-6">
+                        <div className="flex gap-4">
+                            <Fingerprint className="h-5 w-5 text-primary shrink-0" />
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] leading-relaxed">
+                                Biometric auth protocols are enforced for high-sensitivity operations.
+                            </p>
+                        </div>
+                        <div className="flex gap-4">
+                            <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] leading-relaxed">
+                                Identity vault is audit-compliant with JusticeLynk standards.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

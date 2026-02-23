@@ -1,0 +1,254 @@
+export interface LoginPayload { email: string; password: string; }
+export interface RegisterPayload { firstName: string; lastName: string; email: string; password: string; }
+export interface MfaVerifyPayload { userId: string; token: string; }
+export interface AuthTokens { accessToken: string; refreshToken: string; }
+export interface LoginResult {
+    mfaRequired: boolean;
+    userId: string;
+    user?: User;
+    accessToken?: string;
+    refreshToken?: string;
+}
+
+export interface ApiResponse<T> {
+    success: boolean;
+    message?: string;
+    data: T;
+}
+
+export interface PaginatedData<T> {
+    items: T[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+// Simplify to just PaginatedData as the API response wrapper handles the 'data' key
+export type PaginatedResponse<T> = PaginatedData<T>;
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+export type CaseStatus = 'OPEN' | 'IN_PROGRESS' | 'PENDING' | 'CLOSED' | 'ARCHIVED';
+export type CaseType = 'CIVIL' | 'CRIMINAL' | 'CORPORATE' | 'FAMILY' | 'PROPERTY' | 'LABOUR' | 'OTHER';
+
+// ─── Core Entities ───────────────────────────────────────────────────────────
+export interface User {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    role: string;
+    avatar?: string;
+    isActive: boolean;
+    isSuperAdmin?: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface Organization {
+    id: string;
+    name: string;
+    type?: string;
+    description?: string;
+    website?: string;
+    country?: string;
+    logoUrl?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface OrgMember {
+    id: string;
+    userId: string;
+    orgId: string;
+    roleId?: string;
+    user?: User;
+    role?: Role;
+    joinedAt: string;
+}
+
+export interface Permission {
+    id: string;
+    featureKey?: string;
+    feature?: { id: string; key: string; name: string };
+    action?: { id: string; key: string; name: string };
+}
+
+export interface Role {
+    id: string;
+    name: string;
+    description?: string;
+    permissions?: Permission[];
+}
+
+export interface Case {
+    id: string;
+    caseNumber: string;
+    title: string;
+    type: CaseType;
+    status: CaseStatus;
+    description?: string;
+    jurisdiction?: string;
+    hearingDate?: string;
+    assignments?: CaseAssignment[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface CaseAssignment {
+    id: string;
+    caseId: string;
+    professionalId: string;
+    role: string;
+    assignedAt: string;
+}
+
+export interface CaseDocument {
+    id: string;
+    caseId: string;
+    name: string;
+    fileUrl: string;
+    fileType: string;
+    createdAt: string;
+}
+
+export interface CreateCasePayload {
+    title: string;
+    type: CaseType;
+    description?: string;
+    jurisdiction?: string;
+    hearingDate?: Date;
+}
+
+export interface Attachment {
+    name: string;
+    s3Key: string;
+    mimeType: string;
+}
+
+export interface ChatMessage {
+    id: string;
+    caseId: string;
+    senderId: string;
+    content: string;
+    isSystem: boolean;
+    readBy: string[];
+    attachments?: Attachment[];
+    createdAt: string;
+    updatedAt: string;
+    sender?: {
+        id: string;
+        firstName: string;
+        lastName: string;
+        avatar?: string;
+    };
+}
+
+export interface Notification {
+    id: string;
+    userId: string;
+    title: string;
+    body?: string;
+    isRead: boolean;
+    type?: string;
+    data?: Record<string, unknown>;
+    createdAt: string;
+}
+
+export interface Plan {
+    id: string;
+    name: string;
+    description?: string;
+    price: number;
+    currency: string;
+    billingCycle: string;
+    features?: Record<string, unknown>;
+    maxUsers?: number;
+    maxCases?: number;
+}
+
+export interface Subscription {
+    id: string;
+    orgId: string;
+    planId: string;
+    status: string;
+    startDate: string;
+    endDate?: string;
+    plan?: Plan;
+}
+
+export interface Payment {
+    id: string;
+    orgId: string;
+    amount: number;
+    currency: string;
+    status: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    createdAt: string;
+}
+
+export interface RazorpayOrder {
+    orderId: string;
+    amount: number;
+    currency: string;
+    key: string;
+}
+
+export interface Professional {
+    id: string;
+    userId: string;
+    type: string;
+    bio?: string;
+    licenseNumber?: string;
+    specializations?: string[];
+    experienceYears?: number;
+    city?: string;
+    state?: string;
+    country?: string;
+    hourlyRate?: number;
+    isVerified: boolean;
+    user?: User;
+}
+
+export interface AuditLog {
+    id: string;
+    userId?: string;
+    orgId?: string;
+    module: string;
+    action: string;
+    metadata?: Record<string, unknown>;
+    ipAddress?: string;
+    createdAt: string;
+    user?: User;
+}
+
+export interface AdminStats {
+    totalUsers: number;
+    totalOrgs: number;
+    totalCases: number;
+    activeSubs: number;
+    revenue?: number;
+}
+
+export interface RevenueData {
+    monthly: Array<{ month: string; amount: number }>;
+    total: number;
+    currency: string;
+}
+
+export interface MfaStatus {
+    enabled: boolean;
+    secret?: string;
+    backupCodesCount?: number;
+}
+
+export interface Session {
+    id: string;
+    userId: string;
+    ipAddress?: string;
+    userAgent?: string;
+    createdAt: string;
+    expiresAt?: string;
+}
