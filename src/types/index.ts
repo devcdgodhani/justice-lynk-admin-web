@@ -1,10 +1,18 @@
 export interface LoginPayload { email: string; password: string; }
-export interface RegisterPayload { firstName: string; lastName: string; email: string; password: string; }
-export interface MfaVerifyPayload { userId: string; token: string; }
+export interface RegisterPayload { firstName: string; lastName: string; email: string; password: string; phone?: string; userType?: 'client' | 'professional'; }
+export interface MfaVerifyPayload { mfaTempToken: string; token: string; }
+export interface MfaBackupCodePayload { mfaTempToken: string; backupCode: string; }
+export interface VerifyEmailOtpPayload { email: string; otp: string; }
+export interface ResendOtpPayload { email: string; }
+export interface ForgotPasswordPayload { email: string; }
+export interface VerifyForgotPasswordOtpPayload { email: string; otp: string; }
+export interface ResetPasswordPayload { resetToken: string; newPassword: string; }
 export interface AuthTokens { accessToken: string; refreshToken: string; }
 export interface LoginResult {
     mfaRequired: boolean;
-    userId: string;
+    emailVerificationRequired: boolean;
+    email?: string;
+    mfaTempToken?: string;
     user?: User;
     accessToken?: string;
     refreshToken?: string;

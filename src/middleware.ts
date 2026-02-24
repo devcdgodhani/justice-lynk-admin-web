@@ -4,7 +4,9 @@ import type { NextRequest } from 'next/server';
 const PUBLIC_ROUTES = [
     '/login',
     '/register',
+    '/verify-email',
     '/mfa-verify',
+    '/mfa-backup-code',
     '/forgot-password',
 ];
 

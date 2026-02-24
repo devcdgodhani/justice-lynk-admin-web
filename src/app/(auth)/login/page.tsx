@@ -38,15 +38,22 @@ function LoginContent() {
             const result = await authApi.login(data);
             const { data: loginData } = result;
 
+            // Email not yet verified — redirect to OTP screen
+            if (loginData.emailVerificationRequired) {
+                toast.info('Please verify your email to continue');
+                router.push(`/verify-email?email=${encodeURIComponent(loginData.email ?? data.email)}`);
+                return;
+            }
+
+            // MFA required — store temp token in sessionStorage
             if (loginData.mfaRequired) {
-                // Redirect to MFA page with userId
-                router.push(`/mfa-verify?userId=${loginData.userId}`);
+                if (loginData.mfaTempToken) sessionStorage.setItem('jl_mfa_temp', loginData.mfaTempToken);
+                router.push('/mfa-verify');
                 return;
             }
 
             if (loginData.user && loginData.accessToken && loginData.refreshToken) {
                 setAuth(loginData.user, loginData.accessToken, loginData.refreshToken);
-                // Set cookie for middleware
                 document.cookie = `jl-access-token=${loginData.accessToken}; path=/; max-age=900; SameSite=Strict`;
                 router.push(redirect);
             }

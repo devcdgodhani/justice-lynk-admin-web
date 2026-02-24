@@ -1,6 +1,7 @@
 'use client';
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,8 +13,18 @@ import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
 import { cn, getErrorMessage } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { MfaSetupDialog } from '@/components/auth/mfa-setup-dialog';
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const profileSchema = z.object({
     firstName: z.string().min(1),
@@ -26,8 +37,12 @@ const inputCls = 'w-full px-6 py-4 bg-muted/40 border border-border/60 rounded-2
 const labelCls = 'block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2.5 ml-1';
 
 export default function SettingsPage() {
+    const router = useRouter();
     const qc = useQueryClient();
-    const { user: storeUser, setAuth, accessToken, refreshToken } = useAuthStore();
+    const { user: storeUser, setAuth, clearAuth, accessToken, refreshToken } = useAuthStore();
+    const [setupOpen, setSetupOpen] = React.useState(false);
+    const [disableOpen, setDisableOpen] = React.useState(false);
+    const [confirmPassword, setConfirmPassword] = React.useState('');
 
     const { data: profileRes, isLoading } = useQuery({
         queryKey: ['profile'],
@@ -35,7 +50,7 @@ export default function SettingsPage() {
         select: r => r.data,
     });
 
-    const { data: mfaRes } = useQuery({
+    const { data: mfa } = useQuery({
         queryKey: ['mfa-status'],
         queryFn: securityApi.getMfaStatus,
         select: r => r.data,
@@ -48,8 +63,7 @@ export default function SettingsPage() {
     });
 
     const profile = profileRes ?? storeUser;
-    const mfa = mfaRes;
-    const sessions = sessionsRes ?? [];
+    const sessions = Array.isArray(sessionsRes) ? sessionsRes : [];
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
@@ -71,7 +85,28 @@ export default function SettingsPage() {
 
     const revokeSession = useMutation({
         mutationFn: (id: string) => securityApi.revokeSession(id),
-        onSuccess: () => { qc.invalidateQueries({ queryKey: ['sessions'] }); toast.success('Access Terminal Revoked'); },
+        onSuccess: (_, id) => {
+            if (id === 'current') {
+                toast.success('Current access terminal revoked. Signing out...');
+                clearAuth();
+                document.cookie = 'jl-access-token=; path=/; max-age=0; SameSite=Strict';
+                router.replace('/login');
+                return;
+            }
+            qc.invalidateQueries({ queryKey: ['sessions'] });
+            toast.success('Access Terminal Revoked');
+        },
+        onError: (err) => toast.error(getErrorMessage(err)),
+    });
+
+    const disableMfa = useMutation({
+        mutationFn: (password: string) => securityApi.disableMfa(password),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: ['mfa-status'] });
+            toast.success('Security Shield Deactivated (MFA Disabled)');
+            setDisableOpen(false);
+            setConfirmPassword('');
+        },
         onError: (err) => toast.error(getErrorMessage(err)),
     });
 
@@ -232,12 +267,61 @@ export default function SettingsPage() {
                             </div>
 
                             <div className="pt-4">
-                                <Button variant="secondary" className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px]">
-                                    Manage MFA
-                                </Button>
+                                {mfa?.enabled ? (
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => setDisableOpen(true)}
+                                        className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
+                                    >
+                                        Disable MFA
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        variant="secondary"
+                                        onClick={() => setSetupOpen(true)}
+                                        className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
+                                    >
+                                        Enable MFA
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </Card>
+
+                    {/* Modals */}
+                    <MfaSetupDialog open={setupOpen} onOpenChange={setSetupOpen} />
+
+                    <AlertDialog open={disableOpen} onOpenChange={setDisableOpen}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Disable Security Shield?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will lower your account security. Please enter your password to confirm this action.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <div className="py-4">
+                                <input
+                                    type="password"
+                                    placeholder="Enter your password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className={inputCls}
+                                    autoFocus
+                                />
+                            </div>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setConfirmPassword('')}>Cancel</AlertDialogCancel>
+                                <Button
+                                    variant="destructive"
+                                    disabled={!confirmPassword || disableMfa.isPending}
+                                    onClick={() => disableMfa.mutate(confirmPassword)}
+                                    className="rounded-xl font-bold uppercase tracking-widest text-xs h-10 px-6"
+                                >
+                                    {disableMfa.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirm Deactivation'}
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
 
                     {/* Trust Indicators */}
                     <div className="px-4 space-y-6">
