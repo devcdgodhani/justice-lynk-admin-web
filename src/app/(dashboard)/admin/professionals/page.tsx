@@ -86,7 +86,7 @@ export default function ProfessionalsAdminPage() {
                                     <tr key={pro.id} className="hover:bg-muted/50 group transition-all duration-300">
                                         <td className="px-10 py-6">
                                             <Link href={`/admin/professionals/${pro.id}`} className="flex items-center gap-4 group/pro">
-                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-white text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/pro:scale-110">
+                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-primary-foreground text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/pro:scale-110">
                                                     {pro.user?.firstName[0]}{pro.user?.lastName[0]}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
@@ -108,20 +108,20 @@ export default function ProfessionalsAdminPage() {
                                         <td className="px-6 py-6">
                                             <div className="flex flex-wrap gap-1">
                                                 {(pro.specializations || []).slice(0, 2).map(s => (
-                                                    <Badge key={s} variant="outline" className="rounded-lg px-2 py-0.5 text-[8px] font-bold border-border/40 bg-card/40 text-muted-foreground uppercase tracking-widest leading-none">
+                                                    <Badge key={s} variant="info" className="rounded-lg px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest leading-none">
                                                         {s}
                                                     </Badge>
                                                 ))}
                                             </div>
                                         </td>
                                         <td className="px-6 py-6">
-                                            <Badge variant="outline" className="rounded-lg px-2 py-0.5 text-[9px] font-bold border-yellow-500/30 text-yellow-600 bg-yellow-50/50 uppercase tracking-widest animate-pulse">
+                                            <Badge variant="warning" className="rounded-lg px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest animate-pulse">
                                                 Awaiting Verify
                                             </Badge>
                                         </td>
                                         <td className="px-10 py-6 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-emerald-600 hover:bg-emerald-100/50 transition-all shadow-sm">
+                                                <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-success hover:bg-success/10 transition-all shadow-sm">
                                                     <CheckCircle2 className="h-5 w-5" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-destructive hover:bg-destructive/10 transition-all shadow-sm">

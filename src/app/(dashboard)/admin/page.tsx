@@ -89,7 +89,7 @@ export default function AdminPage() {
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-3xl font-bold text-foreground font-mono tracking-tighter">{s.value}</p>
-                                            <Badge variant="secondary" className="bg-transparent border-none text-[8px] font-black text-emerald-500 p-0 tracking-tighter">
+                                            <Badge variant="success" className="bg-transparent border-none text-[8px] font-black p-0 tracking-tighter">
                                                 {s.trend} ↑
                                             </Badge>
                                         </div>
@@ -138,7 +138,7 @@ export default function AdminPage() {
                                     <tr key={log.id} className="hover:bg-muted/50 group transition-all duration-300">
                                         <td className="px-10 py-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center text-white text-[10px] font-bold uppercase shrink-0">
+                                                <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center text-primary-foreground text-[10px] font-bold uppercase shrink-0">
                                                     {log.user?.email?.[0] || 'U'}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">

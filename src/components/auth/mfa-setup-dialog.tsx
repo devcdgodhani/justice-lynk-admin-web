@@ -166,7 +166,7 @@ export function MfaSetupDialog({ open, onOpenChange }: MfaSetupDialogProps) {
                   <Download className="h-4 w-4 mr-2" /> Download
                 </Button>
               </div>
-              <Button onClick={() => onOpenChange(false)} className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-xs brand-gradient">
+              <Button onClick={() => onOpenChange(false)} className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-xs brand-gradient text-primary-foreground">
                 Done, I've Saved Them
               </Button>
             </div>

@@ -133,7 +133,7 @@ export default function Topbar() {
                                 <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter mt-1">{user.role}</p>
                             </div>
                             <div className="w-8 h-8 rounded-full brand-gradient flex items-center justify-center shadow-sm">
-                                <span className="text-white text-[10px] font-bold">{getInitials(user.firstName, user.lastName)}</span>
+                                <span className="text-primary-foreground text-[10px] font-bold">{getInitials(user.firstName, user.lastName)}</span>
                             </div>
                         </button>
 

@@ -144,7 +144,7 @@ export default function OrganizationDetailPage() {
                         <div className="p-4 rounded-2xl bg-muted/30 border border-border/40">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">Current Plan</span>
-                                <Badge className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] font-black uppercase">Active</Badge>
+                                <Badge variant="success" className="border-none text-[9px] font-black uppercase">Active</Badge>
                             </div>
                             <p className="text-lg font-bold text-foreground font-display">
                                 {orgData.subscription?.plan?.name || 'FREE TIER'}

@@ -107,7 +107,7 @@ export default function ProfessionalDetailPage() {
                             </Button>
                         </>
                     ) : (
-                        <Badge className="bg-emerald-500/10 text-emerald-600 border-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">
+                            <Badge variant="success" className="border-none px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em]">
                             <ShieldCheck className="mr-2 h-3.5 w-3.5" /> Verified Practitioner
                         </Badge>
                     )}

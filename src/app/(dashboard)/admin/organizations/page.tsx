@@ -100,7 +100,7 @@ export default function OrganizationsAdminPage() {
                                     <tr key={org.id} className="hover:bg-muted/50 group transition-all duration-300">
                                         <td className="px-10 py-6">
                                             <Link href={`/admin/organizations/${org.id}`} className="flex items-center gap-4 group/org">
-                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-white text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/org:scale-110">
+                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-primary-foreground text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/org:scale-110">
                                                     {org.name[0]}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">

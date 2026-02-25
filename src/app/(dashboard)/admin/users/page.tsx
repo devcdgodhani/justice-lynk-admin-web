@@ -111,7 +111,7 @@ export default function UsersAdminPage() {
                                     <tr key={user.id} className="hover:bg-muted/50 group transition-all duration-300">
                                         <td className="px-10 py-6">
                                             <Link href={`/admin/users/${user.id}`} className="flex items-center gap-4 group/user">
-                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-white text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/user:scale-110">
+                                                <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center text-primary-foreground text-xs font-bold uppercase shrink-0 shadow-lg shadow-primary/10 transition-transform group-hover/user:scale-110">
                                                     {user.firstName[0]}{user.lastName[0]}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
@@ -132,8 +132,8 @@ export default function UsersAdminPage() {
                                         </td>
                                         <td className="px-6 py-6">
                                             <div className="flex items-center gap-2">
-                                                <div className={cn("w-1.5 h-1.5 rounded-full", user.isActive ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-muted-foreground/30")} />
-                                                <span className={cn("text-[10px] font-bold uppercase tracking-wider", user.isActive ? "text-emerald-600" : "text-muted-foreground/60")}>
+                                                <div className={cn("w-1.5 h-1.5 rounded-full", user.isActive ? "bg-success shadow-[0_0_8px_hsl(var(--success)/0.5)]" : "bg-muted-foreground/30")} />
+                                                <span className={cn("text-[10px] font-bold uppercase tracking-wider", user.isActive ? "text-success" : "text-muted-foreground/60")}>
                                                     {user.isActive ? 'Active' : 'Suspended'}
                                                 </span>
                                             </div>
@@ -150,7 +150,7 @@ export default function UsersAdminPage() {
                                                     onClick={() => toggleStatusMutation.mutate({ id: user.id, isActive: !user.isActive })}
                                                     className={cn(
                                                         "h-8 w-8 rounded-lg transition-all",
-                                                        user.isActive ? "text-destructive hover:bg-destructive/10" : "text-emerald-600 hover:bg-emerald-100/50"
+                                                        user.isActive ? "text-destructive hover:bg-destructive/10" : "text-success hover:bg-success/10"
                                                     )}
                                                 >
                                                     {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}

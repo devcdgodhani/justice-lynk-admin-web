@@ -165,7 +165,7 @@ export default function SettingsPage() {
                                     <div className="space-y-1.5">
                                         <label className={labelCls}>First Name</label>
                                         <input {...register('firstName')} className={inputCls} />
-                                        {errors.firstName && <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
+                                        {errors.firstName && <p className="text-destructive text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className={labelCls}>Last Name</label>
@@ -287,11 +287,11 @@ export default function SettingsPage() {
 
                 <div className="md:col-span-12 lg:col-span-4 self-start space-y-8">
                     {/* Security Status Card */}
-                    <Card className="rounded-[2.5rem] border-none shadow-2xl bg-sidebar p-8 text-white space-y-8 overflow-hidden relative">
+                    <Card className="rounded-[2.5rem] border-none shadow-2xl bg-sidebar p-8 text-primary-foreground space-y-8 overflow-hidden relative">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16" />
 
                         <div className="space-y-6 relative">
-                            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white">
+                            <div className="w-12 h-12 rounded-2xl bg-primary-foreground/10 flex items-center justify-center text-primary-foreground">
                                 <Shield className="h-6 w-6" />
                             </div>
                             <div className="space-y-2">
@@ -301,18 +301,15 @@ export default function SettingsPage() {
                                 </p>
                             </div>
 
-                            <div className="pt-6 border-t border-white/10 space-y-4">
+                            <div className="pt-6 border-t border-primary-foreground/10 space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">2FA STATUS</span>
-                                    <Badge className={cn(
-                                        "rounded-lg px-2 py-0.5 text-[9px] border-none",
-                                        mfa?.enabled ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"
-                                    )}>
+                                    <span className="text-[10px] font-bold text-primary-foreground/40 uppercase tracking-widest">2FA STATUS</span>
+                                    <Badge variant={mfa?.enabled ? 'success' : 'warning'} className="rounded-lg px-2 py-0.5 text-[9px] border-none">
                                         {mfa?.enabled ? 'PROTECTED' : 'AT RISK'}
                                     </Badge>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">TERMINALS</span>
+                                    <span className="text-[10px] font-bold text-primary-foreground/40 uppercase tracking-widest">TERMINALS</span>
                                     <span className="text-xs font-bold font-mono">{sessions.length}</span>
                                 </div>
                             </div>
@@ -383,7 +380,7 @@ export default function SettingsPage() {
                             </p>
                         </div>
                         <div className="flex gap-4">
-                            <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                            <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] leading-relaxed">
                                 Identity vault is audit-compliant with JusticeLynk standards.
                             </p>

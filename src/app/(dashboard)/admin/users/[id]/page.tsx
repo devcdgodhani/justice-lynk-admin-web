@@ -103,7 +103,7 @@ export default function UserDetailPage() {
                         variant="outline" 
                         className={cn(
                             "rounded-xl font-bold uppercase tracking-widest text-[10px] h-11 border-border/40 transition-all",
-                            user.isActive ? "text-destructive hover:bg-destructive/10" : "text-emerald-600 hover:bg-emerald-50/50"
+                            user.isActive ? "text-destructive hover:bg-destructive/10" : "text-success hover:bg-success/10"
                         )}
                         onClick={() => toggleStatusMutation.mutate(!user.isActive)}
                         disabled={toggleStatusMutation.isPending || user.id === currentUser.id}
@@ -136,8 +136,8 @@ export default function UserDetailPage() {
                                 </Badge>
                             </div>
                             <div className="flex items-center gap-2 py-2">
-                                <Activity className={cn("h-3.5 w-3.5", user.isActive ? "text-emerald-500" : "text-muted-foreground/30")} />
-                                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", user.isActive ? "text-emerald-600" : "text-muted-foreground/40")}>
+                                <Activity className={cn("h-3.5 w-3.5", user.isActive ? "text-success" : "text-muted-foreground/30")} />
+                                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", user.isActive ? "text-success" : "text-muted-foreground/40")}>
                                     {user.isActive ? 'Status: Active' : 'Status: Restricted'}
                                 </span>
                             </div>

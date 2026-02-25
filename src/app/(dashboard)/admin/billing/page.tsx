@@ -58,8 +58,8 @@ export default function BillingAdminPage() {
                 <Card className="rounded-[2rem] border-none shadow-xl bg-card/60 p-8 overflow-hidden relative group">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
-                            <div className="p-2 rounded-lg bg-emerald-500/10">
-                                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                            <div className="p-2 rounded-lg bg-success/10">
+                                <TrendingUp className="h-4 w-4 text-success" />
                             </div>
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Global Revenue</span>
                         </div>
@@ -67,7 +67,7 @@ export default function BillingAdminPage() {
                             <h3 className="text-4xl font-bold text-foreground font-mono tracking-tighter">
                                 {isLoading ? '...' : `${currency} ${totalRevenue.toLocaleString()}`}
                             </h3>
-                            <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                            <p className="text-[10px] font-bold text-success uppercase tracking-widest flex items-center gap-1">
                                 +14.2% Growth <ArrowUpRight className="h-3 w-3" />
                             </p>
                         </div>

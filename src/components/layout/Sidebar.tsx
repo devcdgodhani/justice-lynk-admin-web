@@ -61,10 +61,10 @@ export default function Sidebar() {
             {/* Logo */}
             <div className="h-20 flex items-center px-6 gap-3 flex-shrink-0">
                 <div className="w-8 h-8 rounded-lg brand-gradient flex items-center justify-center shadow-lg shadow-primary/20 flex-shrink-0">
-                    <Scale className="w-5 h-5 text-white" />
+                    <Scale className="w-5 h-5 text-primary-foreground" />
                 </div>
                 {!sidebarCollapsed && (
-                    <span className="text-xl font-bold font-display tracking-tight text-white">
+                    <span className="text-xl font-bold font-display tracking-tight text-sidebar-foreground">
                         Justice<span className="text-primary-foreground/60">Lynk</span>
                     </span>
                 )}
@@ -80,8 +80,8 @@ export default function Sidebar() {
                             'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group',
                             sidebarCollapsed ? 'justify-center' : '',
                             isActive(href)
-                                ? 'bg-primary-foreground/10 text-white shadow-sm ring-1 ring-primary-foreground/20'
-                                : 'text-sidebar-foreground/70 hover:bg-primary-foreground/5 hover:text-white',
+                                ? 'bg-primary-foreground/10 text-primary-foreground shadow-sm ring-1 ring-primary-foreground/20'
+                                : 'text-sidebar-foreground/70 hover:bg-primary-foreground/5 hover:text-sidebar-foreground',
                         )}
                         title={sidebarCollapsed ? label : undefined}
                     >
@@ -100,12 +100,12 @@ export default function Sidebar() {
                     {!sidebarCollapsed && user ? (
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center flex-shrink-0 shadow-md">
-                                <span className="text-white text-sm font-bold">
+                                <span className="text-primary-foreground text-sm font-bold">
                                     {getInitials(user.firstName, user.lastName)}
                                 </span>
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white truncate">
+                                <p className="text-sm font-semibold text-primary-foreground truncate">
                                     {user.firstName} {user.lastName}
                                 </p>
                                 <p className="text-xs text-primary-foreground/40 truncate font-medium">{user.email}</p>
@@ -114,7 +114,7 @@ export default function Sidebar() {
                     ) : (
                         user && (
                             <div className="w-10 h-10 rounded-xl brand-gradient flex items-center justify-center shadow-md">
-                                <span className="text-white text-sm font-bold">
+                                    <span className="text-primary-foreground text-sm font-bold">
                                     {getInitials(user.firstName, user.lastName)}
                                 </span>
                             </div>
@@ -141,8 +141,8 @@ export default function Sidebar() {
                 className="absolute -right-3 top-24 w-6 h-6 rounded-full bg-sidebar border border-sidebar-border flex items-center justify-center hover:bg-primary-foreground/10 transition-all shadow-lg active:scale-90"
             >
                 {sidebarCollapsed
-                    ? <ChevronRight className="h-4 w-4 text-white" />
-                    : <ChevronLeft className="h-4 w-4 text-white" />
+                    ? <ChevronRight className="h-4 w-4 text-sidebar-foreground" />
+                    : <ChevronLeft className="h-4 w-4 text-sidebar-foreground" />
                 }
             </button>
         </aside>
