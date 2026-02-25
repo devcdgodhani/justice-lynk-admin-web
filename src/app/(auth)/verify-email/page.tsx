@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -12,7 +12,7 @@ import { useAuthStore } from '@/store/auth.store';
 const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const params = useSearchParams();
   const email = params.get('email') ?? '';
@@ -64,12 +64,11 @@ export default function VerifyEmailPage() {
       const res = await authApi.verifyEmail({ email, otp: code });
       const { user, accessToken, refreshToken } = res.data;
       if (accessToken) {
-        document.cookie = `jl-access-token=${accessToken}; path=/; max-age=900; SameSite=Strict`;
         setAuth(user!, accessToken, refreshToken!);
       }
       setVerified(true);
       toast.success('Email verified! Welcome to JusticeLynk 🎉');
-      setTimeout(() => router.replace('/dashboard'), 1500);
+      setTimeout(() => router.replace('/admin'), 1500);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Invalid or expired OTP');
       setOtp(Array(OTP_LENGTH).fill(''));
@@ -100,7 +99,7 @@ export default function VerifyEmailPage() {
       <div className="card p-8 text-center">
         <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
         <h2 className="text-xl font-bold text-foreground">Email Verified!</h2>
-        <p className="text-muted-foreground mt-2 text-sm">Redirecting you to your dashboard…</p>
+        <p className="text-muted-foreground mt-2 text-sm">Redirecting to your dashboard…</p>
       </div>
     );
   }
@@ -140,7 +139,7 @@ export default function VerifyEmailPage() {
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm mb-4">
+        <div className="items-center justify-center gap-2 text-muted-foreground text-sm mb-4 hidden">
           <Loader2 className="w-4 h-4 animate-spin" /> Verifying…
         </div>
       )}
@@ -166,5 +165,13 @@ export default function VerifyEmailPage() {
         <Link href="/login" className="hover:text-primary transition-colors">← Back to login</Link>
       </p>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

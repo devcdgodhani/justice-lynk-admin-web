@@ -6,12 +6,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, User, Shield, Phone, Mail, Fingerprint, History, LogOut, CheckCircle2 } from 'lucide-react';
+import { Loader2, User, Shield, Phone, Mail, Fingerprint, History, LogOut, CheckCircle2, Monitor, Smartphone, Globe } from 'lucide-react';
 import { usersApi } from '@/services/users.api';
 import { securityApi } from '@/services/security.api';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
 import { cn, getErrorMessage } from '@/lib/utils';
+import { jwtDecode } from 'jwt-decode';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -63,7 +64,21 @@ export default function SettingsPage() {
     });
 
     const profile = profileRes ?? storeUser;
-    const sessions = Array.isArray(sessionsRes) ? sessionsRes : [];
+
+    const currentSid = React.useMemo(() => {
+        if (!accessToken) return null;
+        try {
+            const decoded = jwtDecode<{ sid: string }>(accessToken);
+            return decoded.sid;
+        } catch (e) {
+            return null;
+        }
+    }, [accessToken]);
+
+    const sessions = (sessionsRes ?? []).map((s: any) => ({
+        ...s,
+        isCurrent: s.id === currentSid,
+    }));
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileForm>({
         resolver: zodResolver(profileSchema),
@@ -86,10 +101,10 @@ export default function SettingsPage() {
     const revokeSession = useMutation({
         mutationFn: (id: string) => securityApi.revokeSession(id),
         onSuccess: (_, id) => {
-            if (id === 'current') {
+            const isCurrent = sessions.find(s => s.id === id)?.isCurrent;
+            if (isCurrent) {
                 toast.success('Current access terminal revoked. Signing out...');
                 clearAuth();
-                document.cookie = 'jl-access-token=; path=/; max-age=0; SameSite=Strict';
                 router.replace('/login');
                 return;
             }
@@ -205,28 +220,64 @@ export default function SettingsPage() {
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4">
-                                {sessions.map((s: any) => (
-                                    <div key={s.id} className="flex items-center justify-between p-6 bg-muted/40 border border-border/40 rounded-3xl group hover:bg-card hover:shadow-lg transition-all">
-                                        <div className="space-y-1">
-                                            <p className="text-xs font-bold text-foreground font-mono tracking-wider">{s.ipAddress ?? '0.0.0.0'}</p>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-relaxed line-clamp-1 max-w-[200px] md:max-w-md">
-                                                {s.userAgent ?? 'Unknown Device Access'}
-                                            </p>
+                            <div className="grid grid-cols-1 gap-6">
+                                {sessions.map((s: any) => {
+                                    const deviceIcon = s.deviceInfo?.deviceType === 'mobile' ? <Smartphone className="h-4 w-4" /> : <Monitor className="h-4 w-4" />;
+                                    const lastSeen = new Date(s.lastActiveAt).toLocaleString();
+
+                                    return (
+                                        <div key={s.id} className={cn(
+                                            "flex items-center justify-between p-6 rounded-3xl border transition-all duration-300 group",
+                                            s.isCurrent ? "bg-primary/[0.03] border-primary/20 shadow-lg shadow-primary/5" : "bg-muted/30 border-border/40 hover:bg-card hover:shadow-xl"
+                                        )}>
+                                            <div className="flex items-center gap-5">
+                                                <div className={cn(
+                                                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors",
+                                                    s.isCurrent ? "bg-primary/10 text-primary" : "bg-muted/60 text-muted-foreground group-hover:bg-primary/5 group-hover:text-primary"
+                                                )}>
+                                                    {deviceIcon}
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <h3 className="text-sm font-bold uppercase tracking-wider">
+                                                            {s.deviceInfo?.os ?? 'Unknown OS'} • {s.deviceInfo?.browser ?? 'Unknown Browser'}
+                                                        </h3>
+                                                        {s.isCurrent && (
+                                                            <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-none text-[8px] font-black tracking-[0.2em] px-2 py-0">
+                                                                CURRENT
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                            <Globe className="h-3 w-3 opacity-30" />
+                                                            {s.ipAddress ?? '0.0.0.0'}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground opacity-60 uppercase tracking-widest">
+                                                            <History className="h-3 w-3 opacity-30" />
+                                                            Active {lastSeen}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => revokeSession.mutate(s.id)}
+                                                className="h-10 px-4 rounded-xl text-destructive/40 hover:text-destructive hover:bg-destructive/5 font-bold uppercase tracking-widest text-[9px] transition-all"
+                                            >
+                                                <LogOut className="h-3.5 w-3.5 sm:mr-2" />
+                                                <span className="hidden sm:inline">Revoke Access</span>
+                                            </Button>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => revokeSession.mutate(s.id)}
-                                            className="h-10 rounded-xl text-destructive hover:bg-destructive/5 hover:text-destructive font-bold uppercase tracking-widest text-[9px]"
-                                        >
-                                            <LogOut className="h-3 w-3 mr-2" /> Revoke
-                                        </Button>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                                 {sessions.length === 0 && (
-                                    <div className="py-12 text-center text-muted-foreground/40 italic font-medium">
-                                        No active terminals detected.
+                                    <div className="py-20 text-center space-y-4">
+                                        <div className="w-16 h-16 rounded-full bg-muted/20 flex items-center justify-center mx-auto">
+                                            <Shield className="h-8 w-8 text-muted-foreground/20" />
+                                        </div>
+                                        <p className="text-xs font-bold text-muted-foreground/40 uppercase tracking-[0.2em] italic">No active access terminals detected.</p>
                                     </div>
                                 )}
                             </div>

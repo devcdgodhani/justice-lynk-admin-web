@@ -54,7 +54,6 @@ function LoginContent() {
 
             if (loginData.user && loginData.accessToken && loginData.refreshToken) {
                 setAuth(loginData.user, loginData.accessToken, loginData.refreshToken);
-                document.cookie = `jl-access-token=${loginData.accessToken}; path=/; max-age=900; SameSite=Strict`;
                 router.push(redirect);
             }
         } catch (err) {

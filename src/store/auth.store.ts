@@ -30,8 +30,13 @@ export const useAuthStore = create<AuthState>()(
             permissions: [],
             isHydrated: false,
 
-            setAuth: (user, accessToken, refreshToken) =>
-                set({ user, accessToken, refreshToken }),
+            setAuth: (user, accessToken, refreshToken) => {
+                set({ user, accessToken, refreshToken });
+                // Set cookie for middleware sync
+                if (typeof document !== 'undefined') {
+                    document.cookie = `jl-access-token=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Strict`;
+                }
+            },
 
             setActiveOrg: (org) => set({ activeOrg: org }),
 
@@ -40,14 +45,19 @@ export const useAuthStore = create<AuthState>()(
             updateUser: (partial) =>
                 set((state) => ({ user: state.user ? { ...state.user, ...partial } : null })),
 
-            clearAuth: () =>
+            clearAuth: () => {
                 set({
                     user: null,
                     accessToken: null,
                     refreshToken: null,
                     activeOrg: null,
                     permissions: [],
-                }),
+                });
+                // Clear cookie
+                if (typeof document !== 'undefined') {
+                    document.cookie = 'jl-access-token=; path=/; max-age=0; SameSite=Strict';
+                }
+            },
 
             setHydrated: () => set({ isHydrated: true }),
 

@@ -41,11 +41,10 @@ function MfaBackupCodeContent() {
         try {
             const res = await authApi.mfaBackupCode({ mfaTempToken, backupCode: data.backupCode.toUpperCase() });
             const { user, accessToken, refreshToken } = res.data;
-            document.cookie = `jl-access-token=${accessToken!}; path=/; max-age=900; SameSite=Strict`;
             setAuth(user!, accessToken!, refreshToken!);
             sessionStorage.removeItem('jl_mfa_temp');
             toast.success('Signed in with backup code');
-            router.replace('/dashboard');
+            router.replace('/admin');
         } catch (err: any) {
             toast.error(err?.response?.data?.message || 'Invalid backup code');
         } finally {
