@@ -5,6 +5,7 @@ import { adminApi } from '@/services/admin.api';
 import { auditApi } from '@/services/audit.api';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useEffect } from 'react';
 import { Users, Building2, Briefcase, TrendingUp, Loader2, ShieldAlert, Activity, Fingerprint, Database, Globe } from 'lucide-react';
 import { formatDate, formatDateTime, cn } from '@/lib/utils';
@@ -16,27 +17,28 @@ export default function AdminPage() {
     const router = useRouter();
     const { user } = useAuthStore();
 
+    const isSuperAdmin = user?.role === 'super_admin' || (user as any)?.userType === 'super_admin';
     useEffect(() => {
-        if (user && user.role !== 'super_admin') {
+        if (user && !isSuperAdmin) {
             router.replace('/dashboard');
         }
-    }, [user, router]);
+    }, [user, router, isSuperAdmin]);
 
     const { data: statsRes, isLoading: statsLoading } = useQuery({
         queryKey: ['admin-stats'],
         queryFn: adminApi.getStats,
-        enabled: user?.role === 'super_admin',
+        enabled: isSuperAdmin,
         select: r => r.data,
     });
 
     const { data: logsRes, isLoading: logsLoading } = useQuery({
         queryKey: ['audit-logs'],
         queryFn: () => auditApi.getAuditLogs({ page: 1, limit: 20 }),
-        enabled: user?.role === 'super_admin',
+        enabled: isSuperAdmin,
         select: r => r.data,
     });
 
-    if (user?.role !== 'super_admin') return null;
+    if (!isSuperAdmin) return null;
 
     const stats = statsRes;
     const logs = logsRes?.items ?? [];
@@ -44,8 +46,8 @@ export default function AdminPage() {
     const statCards = [
         { label: 'GLOBAL PERSONNEL', value: stats?.totalUsers ?? '0', icon: Users, color: 'text-primary', bg: 'bg-primary/10', trend: '+12%' },
         { label: 'REGISTERED ORGS', value: stats?.totalOrgs ?? '0', icon: Building2, color: 'text-primary', bg: 'bg-primary/10', trend: '+5' },
-        { label: 'VAULTED RECORDS', value: stats?.totalCases ?? '0', icon: Briefcase, color: 'text-secondary', bg: 'bg-secondary/10', trend: 'ACTIVE' },
-        { label: 'REVENUE THROUGHPUT', value: stats?.activeSubs ?? '0', icon: TrendingUp, color: 'text-secondary', bg: 'bg-secondary/10', trend: 'STABLE' },
+        { label: 'VAULTED RECORDS', value: stats?.totalCases ?? '0', icon: Briefcase, color: 'text-primary', bg: 'bg-primary/10', trend: 'ACTIVE' },
+        { label: 'REVENUE THROUGHPUT', value: stats?.activeSubs ?? '0', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10', trend: 'STABLE' },
     ];
 
     return (
@@ -60,6 +62,11 @@ export default function AdminPage() {
                     <p className="text-muted-foreground font-medium text-lg italic">Platform-wide adjudication and organizational governance.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <Link href="/admin/roles">
+                        <Button variant="outline" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-border/40">
+                            <ShieldAlert className="mr-2 h-3.5 w-3.5" /> Authority
+                        </Button>
+                    </Link>
                     <Button variant="outline" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-border/40">
                         <Database className="mr-2 h-3.5 w-3.5" /> Database
                     </Button>
@@ -85,7 +92,7 @@ export default function AdminPage() {
                                             <div className={cn("p-2 rounded-lg", s.bg)}>
                                                 <s.icon className={cn("h-4 w-4", s.color)} />
                                             </div>
-                                            <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{s.label}</span>
+                                            <span className="text-[9px] font-bold text-primary uppercase tracking-widest">{s.label}</span>
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-3xl font-bold text-foreground font-mono tracking-tighter">{s.value}</p>
@@ -94,7 +101,7 @@ export default function AdminPage() {
                                             </Badge>
                                         </div>
                                     </div>
-                                    <Activity className="h-10 w-10 text-muted-foreground/5 opacity-20 -mr-2 -mt-2 group-hover:text-primary/20 transition-colors" />
+                                    <Activity className="h-10 w-10 text-primary/5 opacity-20 -mr-2 -mt-2 group-hover:text-primary/20 transition-colors" />
                                 </div>
                             </CardContent>
                         </Card>
@@ -107,9 +114,9 @@ export default function AdminPage() {
                 <div className="px-10 py-8 border-b border-border/40 flex items-center justify-between bg-card/40">
                     <div className="space-y-1">
                         <h2 className="text-xl font-bold font-display text-foreground flex items-center gap-3">
-                            <Fingerprint className="h-5 w-5 text-primary" /> Audit Registry
+                            <Fingerprint className="h-6 w-6" /> Audit Registry
                         </h2>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">REAL-TIME GLOBAL TRACEABILITY</p>
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest">REAL-TIME GLOBAL TRACEABILITY</p>
                     </div>
                 </div>
                 {logsLoading ? (
@@ -155,9 +162,9 @@ export default function AdminPage() {
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-6">
-                                            <span className="px-3 py-1 rounded-lg text-[9px] font-bold bg-primary/5 text-primary uppercase tracking-widest border border-primary/10 shadow-sm shadow-primary/5">
+                                            <Badge variant="system" className="px-3 py-1">
                                                 {log.action}
-                                            </span>
+                                            </Badge>
                                         </td>
                                         <td className="px-6 py-6 whitespace-nowrap">
                                             <span className="text-[10px] font-bold text-muted-foreground/60 tracking-tighter">

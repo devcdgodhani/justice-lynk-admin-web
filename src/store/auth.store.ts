@@ -31,7 +31,12 @@ export const useAuthStore = create<AuthState>()(
             isHydrated: false,
 
             setAuth: (user, accessToken, refreshToken) => {
-                set({ user, accessToken, refreshToken });
+                // Map userType to role for frontend compatibility if missing
+                const mappedUser = {
+                    ...user,
+                    role: user.role || (user as any).userType || '',
+                };
+                set({ user: mappedUser, accessToken, refreshToken });
                 // Set cookie for middleware sync
                 if (typeof document !== 'undefined') {
                     document.cookie = `jl-access-token=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Strict`;
@@ -62,9 +67,9 @@ export const useAuthStore = create<AuthState>()(
             setHydrated: () => set({ isHydrated: true }),
 
             can: (permissionKey: string) => {
-                return true;
                 const { permissions, user } = get();
-                if (user?.role === 'super_admin') return true;
+                const isSuperAdmin = user?.role === 'super_admin' || (user as any)?.userType === 'super_admin';
+                if (isSuperAdmin) return true;
                 return permissions.includes(permissionKey);
             },
         }),

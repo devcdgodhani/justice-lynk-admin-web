@@ -162,8 +162,8 @@ export default function ProfessionalDetailPage() {
                         </div>
                         <div className="glass rounded-[2rem] p-8 space-y-3">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-secondary/10">
-                                    <Award className="h-4 w-4 text-secondary" />
+                                <div className="p-2 rounded-lg bg-primary/10">
+                                    <Award className="h-4 w-4 text-primary" />
                                 </div>
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Specialist Rating</span>
                             </div>

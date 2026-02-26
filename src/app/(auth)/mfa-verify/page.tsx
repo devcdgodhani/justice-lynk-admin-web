@@ -75,12 +75,12 @@ function MfaVerifyContent() {
                         maxLength={8}
                         placeholder="000000"
                         autoFocus
-                        className="input w-full text-center text-2xl font-bold tracking-[0.5em]"
+                        className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-center text-2xl font-bold tracking-[0.5em]"
                     />
                     {errors.token && <p className="text-xs text-destructive mt-1 text-center">{errors.token.message}</p>}
                 </div>
 
-                <button type="submit" disabled={loading} className="btn-primary w-full">
+                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-2.5 px-4 brand-gradient text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-primary/20">
                     {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Verifying…</> : 'Verify & Sign In →'}
                 </button>
             </form>

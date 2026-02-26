@@ -41,7 +41,7 @@ export default function BillingAdminPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-[0.3em]">
-                        <CreditCard className="h-4 w-4" /> Fiscal Oversight
+                        <CreditCard className="h-5 w-5" /> Fiscal Oversight
                     </div>
                     <h1 className="text-4xl lg:text-5xl font-bold font-display tracking-tight text-foreground">Revenue Analytics</h1>
                     <p className="text-muted-foreground font-medium text-lg italic">Monitor global throughput and subscription health.</p>
@@ -61,7 +61,7 @@ export default function BillingAdminPage() {
                             <div className="p-2 rounded-lg bg-success/10">
                                 <TrendingUp className="h-4 w-4 text-success" />
                             </div>
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Global Revenue</span>
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Total Global Revenue</span>
                         </div>
                         <div className="space-y-1">
                             <h3 className="text-4xl font-bold text-foreground font-mono tracking-tighter">
@@ -80,9 +80,9 @@ export default function BillingAdminPage() {
                 <div className="px-10 py-8 border-b border-border/40 flex items-center justify-between bg-card/40">
                     <div className="space-y-1">
                         <h2 className="text-xl font-bold font-display text-foreground flex items-center gap-3">
-                            <Calendar className="h-5 w-5 text-primary" /> Monthly Throughput
+                            <Calendar className="h-6 w-6" /> Monthly Throughput
                         </h2>
-                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Current Fiscal Year Breakdown</p>
+                        <p className="text-[10px] font-bold text-primary uppercase tracking-widest">Current Fiscal Year Breakdown</p>
                     </div>
                 </div>
                 {isLoading ? (
@@ -100,7 +100,7 @@ export default function BillingAdminPage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {monthlyRevenue.map((m) => (
                                 <div key={m.month} className="p-6 rounded-3xl bg-muted/30 border border-border/40 hover:bg-muted/50 transition-all group">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">{m.month}</p>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-2 group-hover:text-primary transition-colors">{m.month}</p>
                                     <p className="text-lg font-bold text-foreground font-mono group-hover:text-primary transition-colors">
                                         {m.amount.toLocaleString()}
                                     </p>

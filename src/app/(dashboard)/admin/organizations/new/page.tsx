@@ -19,6 +19,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 export default function NewOrganizationPage() {
@@ -73,14 +76,13 @@ export default function NewOrganizationPage() {
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Legal Name of Entity</label>
                             <div className="relative group">
-                                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                <input
-                                    type="text"
+                                <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors z-10" />
+                                <Input
                                     required
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     placeholder="Enter organization name"
-                                    className="w-full pl-12 pr-4 py-3 bg-background/50 border border-border/40 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="pl-12 bg-background/50"
                                 />
                             </div>
                         </div>
@@ -88,28 +90,31 @@ export default function NewOrganizationPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Entity Type</label>
-                                <select
+                                <Select
                                     value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                                    className="w-full px-4 py-3 bg-background/50 border border-border/40 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                                    onValueChange={(val) => setFormData({ ...formData, type: val })}
                                 >
-                                    <option value="CORPORATE">Corporate</option>
-                                    <option value="NGO">NGO</option>
-                                    <option value="GOVERNMENT">Government</option>
-                                    <option value="LEGAL_FIRM">Legal Firm</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
+                                    <SelectTrigger className="bg-background/50">
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="CORPORATE">Corporate</SelectItem>
+                                        <SelectItem value="NGO">NGO</SelectItem>
+                                        <SelectItem value="GOVERNMENT">Government</SelectItem>
+                                        <SelectItem value="LEGAL_FIRM">Legal Firm</SelectItem>
+                                        <SelectItem value="OTHER">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Regional Jurisdiction</label>
                                 <div className="relative group">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                    <input
-                                        type="text"
+                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors z-10" />
+                                    <Input
                                         value={formData.country}
                                         onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                                         placeholder="e.g. India"
-                                        className="w-full pl-12 pr-4 py-3 bg-background/50 border border-border/40 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                        className="pl-12 bg-background/50"
                                     />
                                 </div>
                             </div>
@@ -118,25 +123,24 @@ export default function NewOrganizationPage() {
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Digital Domain (Website)</label>
                             <div className="relative group">
-                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
-                                <input
-                                    type="text"
+                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors z-10" />
+                                <Input
                                     value={formData.website}
                                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                                     placeholder="e.g. www.entity.com"
-                                    className="w-full pl-12 pr-4 py-3 bg-background/50 border border-border/40 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                    className="pl-12 bg-background/50"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">Executive Summary</label>
-                            <textarea
+                            <Textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 placeholder="Brief description of the entity's mission..."
                                 rows={4}
-                                className="w-full px-4 py-3 bg-background/50 border border-border/40 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                className="bg-background/50"
                             />
                         </div>
                     </div>

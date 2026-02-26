@@ -99,7 +99,7 @@ export default function Topbar() {
                                     <div className="px-4 py-10 text-center text-muted-foreground/60 text-sm font-medium italic">All caught up!</div>
                                 ) : (
                                     notifications.map((n) => (
-                                        <div key={n.id} className={cn('p-3 rounded-xl transition-colors mb-1', !n.isRead ? 'bg-primary/5' : 'hover:bg-muted/50')}>
+                                        <div key={n.id} className={cn('p-3 rounded-xl transition-colors mb-1', !n.isRead ? 'bg-primary/10' : 'hover:bg-muted/50')}>
                                             <div className="flex gap-3">
                                                 <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0", !n.isRead ? "bg-primary" : "bg-transparent")} />
                                                 <div className="flex-1">

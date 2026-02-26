@@ -115,7 +115,7 @@ export default function RegisterPage() {
 
                 <button
                     onClick={() => setStep('form')}
-                    className="btn-primary w-full"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 brand-gradient text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-all shadow-lg shadow-primary/20"
                 >
                     Continue as {userType === 'client' ? 'Client' : 'Professional'} →
                 </button>
@@ -151,42 +151,42 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-3">
                   <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">First Name</label>
-                      <input {...register('firstName')} placeholder="John" className="input w-full" />
+                        <input {...register('firstName')} placeholder="John" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
                       {errors.firstName && <p className="text-xs text-destructive mt-1">{errors.firstName.message}</p>}
                   </div>
                   <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">Last Name</label>
-                      <input {...register('lastName')} placeholder="Doe" className="input w-full" />
+                        <input {...register('lastName')} placeholder="Doe" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
                       {errors.lastName && <p className="text-xs text-destructive mt-1">{errors.lastName.message}</p>}
                   </div>
               </div>
 
               <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Email</label>
-                  <input {...register('email')} type="email" placeholder="john@example.com" className="input w-full" />
+                    <input {...register('email')} type="email" placeholder="john@example.com" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
                   {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
               </div>
 
               <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Phone <span className="text-muted-foreground">(optional)</span></label>
-                  <input {...register('phone')} type="tel" placeholder="+91 98765 43210" className="input w-full" />
+                    <input {...register('phone')} type="tel" placeholder="+91 98765 43210" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
               </div>
 
               <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Password</label>
-                  <input {...register('password')} type="password" placeholder="Min 8 chars, must include A-z, 0-9, @$!%*?&" className="input w-full" />
+                    <input {...register('password')} type="password" placeholder="Min 8 chars, must include A-z, 0-9, @$!%*?&" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
                   {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
               </div>
 
               <div>
                   <label className="block text-sm font-medium text-foreground mb-1.5">Confirm Password</label>
-                  <input {...register('confirm')} type="password" placeholder="Repeat password" className="input w-full" />
+                    <input {...register('confirm')} type="password" placeholder="Repeat password" className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-lg text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all" />
                   {errors.confirm && <p className="text-xs text-destructive mt-1">{errors.confirm.message}</p>}
               </div>
 
-              <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
-                  {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating account…</> : 'Create Account →'}
-              </button>
+                <button type="submit" disabled={loading} className="w-full flex items-center justify-center gap-2 py-2.5 px-4 brand-gradient text-primary-foreground font-semibold rounded-lg hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-primary/20 mt-2">
+                    {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating account…</> : 'Create Account →'}
+                </button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">

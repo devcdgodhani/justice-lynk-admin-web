@@ -41,4 +41,29 @@ export const adminApi = {
 
     verifyProfessional: (id: string) =>
         api.patch<ApiResponse<Professional>>(`/professionals/${id}/verify`).then((r) => r.data),
+
+    // Roles Management
+    listRoles: () =>
+        api.get<ApiResponse<any[]>>('/admin/roles').then((r) => r.data),
+
+    createRole: (data: any) =>
+        api.post<ApiResponse<any>>('/admin/roles', data).then((r) => r.data),
+
+    updateRole: (id: string, data: any) =>
+        api.patch<ApiResponse<any>>(`/admin/roles/${id}`, data).then((r) => r.data),
+
+    deleteRole: (id: string) =>
+        api.delete<ApiResponse<null>>(`/admin/roles/${id}`).then((r) => r.data),
+
+    getRolePermissions: (id: string) =>
+        api.get<ApiResponse<any[]>>(`/admin/roles/${id}/permissions`).then((r) => r.data),
+
+    grantRolePermissions: (roleId: string, permissions: any[]) =>
+        api.post<ApiResponse<any>>('/admin/roles/grant', { roleId, permissions }).then((r) => r.data),
+
+    getModules: () =>
+        api.get<ApiResponse<any[]>>('/admin/roles/modules').then((r) => r.data),
+
+    getScreens: () =>
+        api.get<ApiResponse<any[]>>('/admin/roles/screens').then((r) => r.data),
 };

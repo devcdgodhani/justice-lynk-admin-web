@@ -165,8 +165,8 @@ export default function OrganizationDetailPage() {
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Personnel</p>
                         </div>
                         <div className="glass rounded-[2rem] p-6 text-center space-y-2">
-                            <div className="h-10 w-10 rounded-xl bg-secondary/10 flex items-center justify-center mx-auto mb-2">
-                                <Briefcase className="h-5 w-5 text-secondary" />
+                            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-2">
+                                <Briefcase className="h-5 w-5 text-primary" />
                             </div>
                             <p className="text-2xl font-bold text-foreground font-mono">{orgData._count?.cases || 0}</p>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Cases</p>

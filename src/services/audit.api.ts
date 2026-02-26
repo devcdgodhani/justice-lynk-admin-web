@@ -6,6 +6,7 @@ export const auditApi = {
         page?: number; limit?: number;
         module?: string; action?: string;
         from?: string; to?: string;
+        search?: string;
     }) =>
         api.get<ApiResponse<PaginatedResponse<AuditLog>>>('/audit', { params }).then((r) => r.data),
 

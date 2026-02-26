@@ -16,6 +16,7 @@ import { jwtDecode } from 'jwt-decode';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { MfaSetupDialog } from '@/components/auth/mfa-setup-dialog';
 import {
     AlertDialog,
@@ -34,8 +35,7 @@ const profileSchema = z.object({
 });
 type ProfileForm = z.infer<typeof profileSchema>;
 
-const inputCls = 'w-full px-6 py-4 bg-muted/40 border border-border/60 rounded-2xl text-sm font-bold text-foreground placeholder:text-muted-foreground/30 placeholder:uppercase placeholder:text-[10px] placeholder:tracking-[0.2em] focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/40 focus:bg-card transition-all duration-300';
-const labelCls = 'block text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-2.5 ml-1';
+const labelCls = 'block text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2.5 ml-1';
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -138,7 +138,7 @@ export default function SettingsPage() {
         <div className="centered-container py-12 max-w-4xl animate-fade-in space-y-12">
             {/* Header */}
             <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-[0.2em]">
+                <div className="flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-[0.2em]">
                     System Configuration
                 </div>
                 <h1 className="text-4xl lg:text-5xl font-bold font-display tracking-tight text-foreground">Settings</h1>
@@ -151,12 +151,12 @@ export default function SettingsPage() {
                     <Card className="rounded-[2.5rem] border-none shadow-2xl overflow-hidden bg-card/60">
                         <div className="p-8 space-y-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                                     <User className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider">Identity Console</h2>
-                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Personal Profile Information</p>
+                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider text-foreground">Identity Console</h2>
+                                    <p className="text-xs font-bold text-primary uppercase tracking-widest">Personal Profile Information</p>
                                 </div>
                             </div>
 
@@ -164,12 +164,12 @@ export default function SettingsPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-1.5">
                                         <label className={labelCls}>First Name</label>
-                                        <input {...register('firstName')} className={inputCls} />
+                                        <Input {...register('firstName')} placeholder="First Name" />
                                         {errors.firstName && <p className="text-destructive text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className={labelCls}>Last Name</label>
-                                        <input {...register('lastName')} className={inputCls} />
+                                        <Input {...register('lastName')} placeholder="Last Name" />
                                         {errors.lastName && <p className="text-destructive text-[10px] font-bold uppercase tracking-widest mt-1 ml-1">Required</p>}
                                     </div>
                                 </div>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                                 <div className="space-y-1.5">
                                     <label className={labelCls}>Phone Protocol</label>
                                     <div className="relative group">
-                                        <input {...register('phone')} placeholder="+00 0000000000" className={inputCls} />
+                                        <Input {...register('phone')} placeholder="+00 0000000000" className="pr-12" />
                                         <Phone className="absolute right-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20 group-focus-within:text-primary transition-colors" />
                                     </div>
                                 </div>
@@ -185,16 +185,17 @@ export default function SettingsPage() {
                                 <div className="space-y-1.5">
                                     <label className={labelCls}>Authorized Email (Locked)</label>
                                     <div className="relative group">
-                                        <input value={profile?.email ?? ''} disabled className={inputCls + ' opacity-50 cursor-not-allowed bg-muted/20'} />
-                                        <Mail className="absolute right-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/20" />
+                                        <Input value={profile?.email ?? ''} disabled className="opacity-50 cursor-not-allowed bg-muted/20 pr-12" />
+                                        <Mail className="absolute right-6 top-1/2 -translate-y/2 h-4 w-4 text-muted-foreground/20" />
                                     </div>
                                 </div>
 
                                 <div className="pt-4">
                                     <Button
                                         type="submit"
+                                        variant="gradient"
                                         disabled={isSubmitting || updateProfile.isPending}
-                                        className="h-14 px-10 rounded-[2rem] font-bold tracking-widest uppercase text-xs shadow-xl shadow-primary/20"
+                                        className="h-14 px-10 rounded-[2rem] font-bold tracking-widest uppercase text-xs"
                                     >
                                         {(isSubmitting || updateProfile.isPending) ? (
                                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -211,12 +212,12 @@ export default function SettingsPage() {
                     <Card className="rounded-[2.5rem] border-none shadow-2xl overflow-hidden glass">
                         <div className="p-8 space-y-8">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                                     <History className="h-6 w-6" />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider">Access Terminals</h2>
-                                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Active Auth Sessions</p>
+                                    <h2 className="text-xl font-bold font-display uppercase tracking-wider text-foreground">Access Terminals</h2>
+                                    <p className="text-xs font-bold text-primary uppercase tracking-widest">Active Auth Sessions</p>
                                 </div>
                             </div>
 
@@ -239,21 +240,21 @@ export default function SettingsPage() {
                                                 </div>
                                                 <div className="space-y-1.5">
                                                     <div className="flex items-center gap-2">
-                                                        <h3 className="text-sm font-bold uppercase tracking-wider">
+                                                        <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">
                                                             {s.deviceInfo?.os ?? 'Unknown OS'} • {s.deviceInfo?.browser ?? 'Unknown Browser'}
                                                         </h3>
                                                         {s.isCurrent && (
-                                                            <Badge className="bg-primary/10 text-primary hover:bg-primary/10 border-none text-[8px] font-black tracking-[0.2em] px-2 py-0">
+                                                            <Badge variant="system" className="text-[8px] font-black tracking-[0.2em] px-2 py-0 border-none">
                                                                 CURRENT
                                                             </Badge>
                                                         )}
                                                     </div>
                                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">
                                                             <Globe className="h-3 w-3 opacity-30" />
                                                             {s.ipAddress ?? '0.0.0.0'}
                                                         </div>
-                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground opacity-60 uppercase tracking-widest">
+                                                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary/30 uppercase tracking-widest">
                                                             <History className="h-3 w-3 opacity-30" />
                                                             Active {lastSeen}
                                                         </div>
@@ -287,30 +288,30 @@ export default function SettingsPage() {
 
                 <div className="md:col-span-12 lg:col-span-4 self-start space-y-8">
                     {/* Security Status Card */}
-                    <Card className="rounded-[2.5rem] border-none shadow-2xl bg-sidebar p-8 text-primary-foreground space-y-8 overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16" />
+                    <Card className="rounded-[2.5rem] border-none shadow-2xl bg-sidebar p-8 text-sidebar-foreground space-y-8 overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
 
                         <div className="space-y-6 relative">
-                            <div className="w-12 h-12 rounded-2xl bg-primary-foreground/10 flex items-center justify-center text-primary-foreground">
+                            <div className="w-12 h-12 rounded-2xl bg-sidebar-foreground/10 flex items-center justify-center text-primary-foreground">
                                 <Shield className="h-6 w-6" />
                             </div>
                             <div className="space-y-2">
-                                <h3 className="text-xl font-bold font-display">Security Shield</h3>
+                                <h3 className="text-xl font-bold font-display text-sidebar-foreground">Security Shield</h3>
                                 <p className="text-sm text-sidebar-foreground/60 font-medium leading-relaxed">
                                     Account protection is currently active with enterprise-grade encryption.
                                 </p>
                             </div>
 
-                            <div className="pt-6 border-t border-primary-foreground/10 space-y-4">
+                            <div className="pt-6 border-t border-sidebar-foreground/10 space-y-4">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-primary-foreground/40 uppercase tracking-widest">2FA STATUS</span>
+                                    <span className="text-[10px] font-bold text-sidebar-foreground/40 uppercase tracking-widest">2FA STATUS</span>
                                     <Badge variant={mfa?.enabled ? 'success' : 'warning'} className="rounded-lg px-2 py-0.5 text-[9px] border-none">
                                         {mfa?.enabled ? 'PROTECTED' : 'AT RISK'}
                                     </Badge>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-bold text-primary-foreground/40 uppercase tracking-widest">TERMINALS</span>
-                                    <span className="text-xs font-bold font-mono">{sessions.length}</span>
+                                    <span className="text-[10px] font-bold text-sidebar-foreground/40 uppercase tracking-widest">TERMINALS</span>
+                                    <span className="text-xs font-bold font-mono text-sidebar-foreground">{sessions.length}</span>
                                 </div>
                             </div>
 
@@ -324,13 +325,13 @@ export default function SettingsPage() {
                                         Disable MFA
                                     </Button>
                                 ) : (
-                                    <Button
-                                        variant="secondary"
-                                        onClick={() => setSetupOpen(true)}
-                                        className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px]"
-                                    >
-                                        Enable MFA
-                                    </Button>
+                                        <Button
+                                            variant="gradient"
+                                            onClick={() => setSetupOpen(true)}
+                                            className="w-full h-12 rounded-2xl font-bold uppercase tracking-widest text-[10px] border-none"
+                                        >
+                                            Enable MFA
+                                        </Button>
                                 )}
                             </div>
                         </div>
@@ -340,30 +341,29 @@ export default function SettingsPage() {
                     <MfaSetupDialog open={setupOpen} onOpenChange={setSetupOpen} />
 
                     <AlertDialog open={disableOpen} onOpenChange={setDisableOpen}>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="rounded-[2rem] border-none shadow-2xl bg-card">
                             <AlertDialogHeader>
-                                <AlertDialogTitle>Disable Security Shield?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogTitle className="text-xl font-bold font-display">Disable Security Shield?</AlertDialogTitle>
+                                <AlertDialogDescription className="text-sm font-medium">
                                     This will lower your account security. Please enter your password to confirm this action.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <div className="py-4">
-                                <input
+                                <Input
                                     type="password"
                                     placeholder="Enter your password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className={inputCls}
                                     autoFocus
                                 />
                             </div>
                             <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setConfirmPassword('')}>Cancel</AlertDialogCancel>
+                                <AlertDialogCancel className="rounded-xl font-bold uppercase tracking-widest text-[10px]">Cancel</AlertDialogCancel>
                                 <Button
                                     variant="destructive"
                                     disabled={!confirmPassword || disableMfa.isPending}
                                     onClick={() => disableMfa.mutate(confirmPassword)}
-                                    className="rounded-xl font-bold uppercase tracking-widest text-xs h-10 px-6"
+                                    className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-11 px-6"
                                 >
                                     {disableMfa.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirm Deactivation'}
                                 </Button>
@@ -375,13 +375,13 @@ export default function SettingsPage() {
                     <div className="px-4 space-y-6">
                         <div className="flex gap-4">
                             <Fingerprint className="h-5 w-5 text-primary shrink-0" />
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] leading-relaxed">
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.15em] leading-relaxed">
                                 Biometric auth protocols are enforced for high-sensitivity operations.
                             </p>
                         </div>
                         <div className="flex gap-4">
                             <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] leading-relaxed">
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-[0.15em] leading-relaxed">
                                 Identity vault is audit-compliant with JusticeLynk standards.
                             </p>
                         </div>

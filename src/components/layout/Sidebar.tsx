@@ -13,6 +13,8 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
+    ShieldCheck,
+    Fingerprint,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useUIStore } from '@/store/ui.store';
@@ -25,6 +27,8 @@ const navItems = [
     { href: '/admin/organizations', label: 'Organizations', icon: Building2 },
     { href: '/admin/professionals', label: 'Professionals', icon: Scale },
     { href: '/admin/billing', label: 'Subscriptions', icon: CreditCard },
+    { href: '/admin/roles', label: 'Roles', icon: ShieldCheck },
+    { href: '/admin/audit', label: 'Audit Logs', icon: Fingerprint },
     { href: '/notifications', label: 'System Logs', icon: Bell },
     { href: '/settings', label: 'Settings', icon: Settings },
 ];
@@ -65,7 +69,7 @@ export default function Sidebar() {
                 </div>
                 {!sidebarCollapsed && (
                     <span className="text-xl font-bold font-display tracking-tight text-sidebar-foreground">
-                        Justice<span className="text-primary-foreground/60">Lynk</span>
+                        Justice<span className="text-sidebar-foreground/60">Lynk</span>
                     </span>
                 )}
             </div>
@@ -85,7 +89,10 @@ export default function Sidebar() {
                         )}
                         title={sidebarCollapsed ? label : undefined}
                     >
-                        <Icon className={cn('flex-shrink-0 h-5 w-5 transition-transform group-hover:scale-110', isActive(href) ? 'text-primary' : '')} />
+                        <Icon className={cn(
+                            'flex-shrink-0 h-5 w-5 transition-transform group-hover:scale-110',
+                            isActive(href) ? 'text-primary' : 'text-sidebar-foreground/40 group-hover:text-sidebar-foreground'
+                        )} />
                         {!sidebarCollapsed && <span className="truncate tracking-wide">{label}</span>}
                     </Link>
                 ))}

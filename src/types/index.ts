@@ -24,12 +24,18 @@ export interface ApiResponse<T> {
     data: T;
 }
 
-export interface PaginatedData<T> {
-    items: T[];
+export interface PaginationMeta {
     total: number;
     page: number;
     limit: number;
     totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+
+export interface PaginatedData<T> {
+    items: T[];
+    meta: PaginationMeta;
 }
 
 // Simplify to just PaginatedData as the API response wrapper handles the 'data' key
@@ -38,6 +44,7 @@ export type PaginatedResponse<T> = PaginatedData<T>;
 // ─── Enums ──────────────────────────────────────────────────────────────────
 export type CaseStatus = 'OPEN' | 'IN_PROGRESS' | 'PENDING' | 'CLOSED' | 'ARCHIVED';
 export type CaseType = 'CIVIL' | 'CRIMINAL' | 'CORPORATE' | 'FAMILY' | 'PROPERTY' | 'LABOUR' | 'OTHER';
+export type AppType = 'MAIN_WEB' | 'ADMIN_WEB' | 'MOBILE_CLIENT' | 'MOBILE_PROFESSIONAL';
 
 // ─── Core Entities ───────────────────────────────────────────────────────────
 export interface User {
@@ -47,6 +54,7 @@ export interface User {
     email: string;
     phone?: string;
     role: string;
+    userType?: string;
     avatar?: string;
     isActive: boolean;
     isSuperAdmin?: boolean;
@@ -224,8 +232,11 @@ export interface AuditLog {
     id: string;
     userId?: string;
     orgId?: string;
+    appType: AppType;
     module: string;
     action: string;
+    entityType?: string;
+    entityId?: string;
     metadata?: Record<string, unknown>;
     ipAddress?: string;
     createdAt: string;

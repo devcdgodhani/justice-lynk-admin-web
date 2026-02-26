@@ -58,7 +58,7 @@ export default function NotificationsPage() {
                     <h1 className="text-4xl font-bold font-display tracking-tight text-foreground">Notifications</h1>
                     <div className="flex items-center gap-2">
                         {unreadCount > 0 ? (
-                            <Badge variant="premium" className="rounded-md px-2 py-0 text-[9px] font-black tracking-widest">
+                            <Badge variant="system" className="rounded-md px-2 py-0 text-[9px] font-black tracking-widest border-primary/20">
                                 {unreadCount} UNREAD ALERTS
                             </Badge>
                         ) : (
