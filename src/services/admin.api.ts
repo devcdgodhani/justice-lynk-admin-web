@@ -66,4 +66,20 @@ export const adminApi = {
 
     getScreens: () =>
         api.get<ApiResponse<any[]>>('/admin/roles/screens').then((r) => r.data),
+
+    // Subscription Plans
+    listSubscriptionPlans: () =>
+        api.get<ApiResponse<any[]>>('/admin/subscription-plans').then((r) => r.data),
+
+    getSubscriptionPlan: (id: string) =>
+        api.get<ApiResponse<any>>(`/admin/subscription-plans/${id}`).then((r) => r.data),
+
+    createSubscriptionPlan: (data: any) =>
+        api.post<ApiResponse<any>>('/admin/subscription-plans', data).then((r) => r.data),
+
+    updateSubscriptionPlan: (id: string, data: any) =>
+        api.put<ApiResponse<any>>(`/admin/subscription-plans/${id}`, data).then((r) => r.data),
+
+    deleteSubscriptionPlan: (id: string) =>
+        api.delete<ApiResponse<null>>(`/admin/subscription-plans/${id}`).then((r) => r.data),
 };

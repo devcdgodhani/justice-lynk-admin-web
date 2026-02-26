@@ -15,6 +15,7 @@ import {
     ChevronRight,
     ShieldCheck,
     Fingerprint,
+    Package,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useUIStore } from '@/store/ui.store';
@@ -26,7 +27,8 @@ const navItems = [
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/organizations', label: 'Organizations', icon: Building2 },
     { href: '/admin/professionals', label: 'Professionals', icon: Scale },
-    { href: '/admin/billing', label: 'Subscriptions', icon: CreditCard },
+    { href: '/admin/subscription-plans', label: 'Subscription Plans', icon: Package },
+    { href: '/admin/billing', label: 'Revenue Analytics', icon: CreditCard },
     { href: '/admin/roles', label: 'Roles', icon: ShieldCheck },
     { href: '/admin/audit', label: 'Audit Logs', icon: Fingerprint },
     { href: '/notifications', label: 'System Logs', icon: Bell },
