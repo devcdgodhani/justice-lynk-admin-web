@@ -62,11 +62,6 @@ export default function AdminPage() {
                     <p className="text-muted-foreground font-medium text-lg italic">Platform-wide adjudication and organizational governance.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Link href="/admin/roles">
-                        <Button variant="outline" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-border/40">
-                            <ShieldAlert className="mr-2 h-3.5 w-3.5" /> Authority
-                        </Button>
-                    </Link>
                     <Button variant="outline" className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-12 border-border/40">
                         <Database className="mr-2 h-3.5 w-3.5" /> Database
                     </Button>

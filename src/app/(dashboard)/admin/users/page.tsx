@@ -8,10 +8,7 @@ import { useAuthStore } from '@/store/auth.store';
 import {
     Users as UsersIcon,
     Search,
-    Filter,
     MoreVertical,
-    ShieldCheck,
-    ShieldAlert,
     Loader2,
     ChevronLeft,
     ChevronRight,
@@ -22,7 +19,6 @@ import { cn, formatDate } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
 import {
     Table,
     TableHeader,
@@ -47,12 +43,14 @@ export default function UsersAdminPage() {
     const queryClient = useQueryClient();
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
+    const [userType, setUserType] = useState<string | undefined>();
+    const [approvalStatus, setApprovalStatus] = useState<string | undefined>();
     const limit = 10;
 
     const isSuperAdmin = currentUser?.role === 'super_admin' || (currentUser as any)?.userType === 'super_admin';
     const { data: usersRes, isLoading } = useQuery({
-        queryKey: ['admin-users', page, search],
-        queryFn: () => adminApi.listUsers({ page, limit, search }),
+        queryKey: ['admin-users', page, search, userType, approvalStatus],
+        queryFn: () => adminApi.listUsers({ page, limit, search, userType, approvalStatus }),
         enabled: isSuperAdmin,
         select: r => r.data,
     });
@@ -69,10 +67,18 @@ export default function UsersAdminPage() {
         }
     });
 
-    if (currentUser?.role !== 'super_admin') return null;
+    if (!isSuperAdmin) return null;
 
     const users = usersRes?.items ?? [];
     const totalPages = usersRes?.meta?.totalPages ?? 1;
+
+    const tabs = [
+        { label: 'All Users', type: undefined, status: undefined },
+        { label: 'Clients', type: 'client', status: 'approved' },
+        { label: 'Advocate', type: 'advocate', status: 'approved' },
+        { label: 'Law Firms', type: 'law_firm_admin', status: 'approved' },
+        { label: 'Requests', type: undefined, status: 'pending' },
+    ];
 
     return (
         <div className="centered-container py-12 max-w-7xl animate-fade-in space-y-8">
@@ -85,6 +91,28 @@ export default function UsersAdminPage() {
                     <h1 className="text-4xl lg:text-5xl font-bold font-display tracking-tight text-foreground">User Management</h1>
                     <p className="text-muted-foreground font-medium text-lg italic">Control platform-wide access and account permissions.</p>
                 </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-2xl w-fit border border-border/20">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.label}
+                        onClick={() => {
+                            setUserType(tab.type);
+                            setApprovalStatus(tab.status);
+                            setPage(1);
+                        }}
+                        className={cn(
+                            "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300",
+                            userType === tab.type && approvalStatus === tab.status
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                        )}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </div>
 
             {/* Filters */}
@@ -100,11 +128,6 @@ export default function UsersAdminPage() {
                         }}
                         className="pl-12 bg-card border border-border/40"
                     />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" className="rounded-xl border-border/40 h-11 px-6 font-bold uppercase tracking-wider text-[10px]">
-                        <Filter className="mr-2 h-3.5 w-3.5" /> All Roles
-                    </Button>
                 </div>
             </div>
 
@@ -186,7 +209,7 @@ export default function UsersAdminPage() {
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
                                                             onClick={() => toggleStatusMutation.mutate({ id: user.id, isActive: !user.isActive })}
-                                                            disabled={user.id === currentUser.id || toggleStatusMutation.isPending}
+                                                            disabled={user.id === currentUser?.id || toggleStatusMutation.isPending}
                                                             className={cn(
                                                                 "flex items-center gap-2 cursor-pointer rounded-xl",
                                                                 user.isActive ? "text-destructive focus:text-destructive" : "text-success focus:text-success"
@@ -199,7 +222,7 @@ export default function UsersAdminPage() {
                                                 </DropdownMenu>
                                             </TableCell>
                                         </motion.tr>
-                                ))}
+                                    ))}
                                 </AnimatePresence>
                             </TableBody>
                         </Table>

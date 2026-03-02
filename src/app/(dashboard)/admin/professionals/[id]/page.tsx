@@ -167,7 +167,7 @@ export default function ProfessionalDetailPage() {
                                 </div>
                                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Specialist Rating</span>
                             </div>
-                            <p className="text-3xl font-bold text-foreground font-mono">ADVOCATE</p>
+                            <p className="text-3xl font-bold text-foreground font-mono">PROFESSIONAL</p>
                         </div>
                     </div>
 

@@ -29,7 +29,6 @@ const navItems = [
     { href: '/admin/professionals', label: 'Professionals', icon: Scale },
     { href: '/admin/subscription-plans', label: 'Subscription Plans', icon: Package },
     { href: '/admin/billing', label: 'Revenue Analytics', icon: CreditCard },
-    { href: '/admin/roles', label: 'Roles', icon: ShieldCheck },
     { href: '/admin/audit', label: 'Audit Logs', icon: Fingerprint },
     { href: '/notifications', label: 'System Logs', icon: Bell },
     { href: '/settings', label: 'Settings', icon: Settings },

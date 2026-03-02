@@ -112,13 +112,38 @@ export default function SubscriptionPlansPage() {
                 </div>
               </div>
 
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl font-black text-foreground font-mono tracking-tighter">
-                  ₹{Number(plan.price).toLocaleString()}
-                </span>
-                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                  / {plan.billingInterval}
-                </span>
+              <div className="space-y-4">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-foreground font-mono tracking-tighter">
+                      {Number(plan.monthlyOfferPrice || plan.monthlyPrice) === 0 ? 'FREE' : `₹${Number(plan.monthlyOfferPrice || plan.monthlyPrice).toLocaleString()}`}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                      / month
+                    </span>
+                  </div>
+                  {Number(plan.monthlyOfferPrice) > 0 && Number(plan.monthlyOfferPrice) !== Number(plan.monthlyPrice) && (
+                    <span className="text-[10px] line-through text-muted-foreground/60 font-bold ml-1">
+                      ₹{Number(plan.monthlyPrice).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-1 pt-2 border-t border-border/10">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-foreground font-mono tracking-tighter">
+                      {Number(plan.yearlyOfferPrice || plan.yearlyPrice) === 0 ? 'FREE' : `₹${Number(plan.yearlyOfferPrice || plan.yearlyPrice).toLocaleString()}`}
+                    </span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                      / year
+                    </span>
+                  </div>
+                  {Number(plan.yearlyOfferPrice) > 0 && Number(plan.yearlyOfferPrice) !== Number(plan.yearlyPrice) && (
+                    <span className="text-[10px] line-through text-muted-foreground/60 font-bold ml-1">
+                      ₹{Number(plan.yearlyPrice).toLocaleString()}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Limits Preview */}

@@ -5,11 +5,14 @@ export const adminApi = {
     getStats: () =>
         api.get<ApiResponse<AdminStats>>('/admin/stats').then((r) => r.data),
 
-    listUsers: (params?: { page?: number; limit?: number; search?: string; isActive?: string }) =>
-        api.get<ApiResponse<PaginatedResponse<User>>>('/admin/users', { params }).then((r) => r.data),
+    listUsers: (params?: { page?: number; limit?: number; search?: string; userType?: string; approvalStatus?: string }) =>
+        api.get<ApiResponse<PaginatedResponse<User>>>('/users', { params }).then((r) => r.data),
 
     toggleUserStatus: (id: string, isActive: boolean) =>
         api.patch<ApiResponse<User>>(`/admin/users/${id}/status`, { isActive }).then((r) => r.data),
+
+    updateApprovalStatus: (id: string, status: 'approved' | 'rejected' | 'pending' | 'suspended', note?: string) =>
+        api.patch<ApiResponse<User>>(`/admin/users/${id}/approval`, { status, note }).then((r) => r.data),
 
     listOrgs: (params?: { page?: number; limit?: number; search?: string }) =>
         api.get<ApiResponse<PaginatedResponse<Organization>>>('/admin/organizations', { params }).then((r) => r.data),
@@ -42,30 +45,9 @@ export const adminApi = {
     verifyProfessional: (id: string) =>
         api.patch<ApiResponse<Professional>>(`/professionals/${id}/verify`).then((r) => r.data),
 
-    // Roles Management
-    listRoles: () =>
-        api.get<ApiResponse<any[]>>('/admin/roles').then((r) => r.data),
-
-    createRole: (data: any) =>
-        api.post<ApiResponse<any>>('/admin/roles', data).then((r) => r.data),
-
-    updateRole: (id: string, data: any) =>
-        api.patch<ApiResponse<any>>(`/admin/roles/${id}`, data).then((r) => r.data),
-
-    deleteRole: (id: string) =>
-        api.delete<ApiResponse<null>>(`/admin/roles/${id}`).then((r) => r.data),
-
-    getRolePermissions: (id: string) =>
-        api.get<ApiResponse<any[]>>(`/admin/roles/${id}/permissions`).then((r) => r.data),
-
-    grantRolePermissions: (roleId: string, permissions: any[]) =>
-        api.post<ApiResponse<any>>('/admin/roles/grant', { roleId, permissions }).then((r) => r.data),
-
-    getModules: () =>
-        api.get<ApiResponse<any[]>>('/admin/roles/modules').then((r) => r.data),
-
-    getScreens: () =>
-        api.get<ApiResponse<any[]>>('/admin/roles/screens').then((r) => r.data),
+    // System Modules & Features (for Plan Management)
+    getModules: (userType?: string) =>
+        api.get<ApiResponse<any[]>>('/modules/all', { params: userType ? { userType } : undefined }).then((r) => r.data),
 
     // Subscription Plans
     listSubscriptionPlans: () =>

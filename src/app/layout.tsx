@@ -15,7 +15,7 @@ export const metadata: Metadata = {
         template: '%s | JusticeLynk',
     },
     description: 'Enterprise-grade legal case management, connecting legal professionals with clients.',
-    keywords: ['legal', 'case management', 'law', 'advocates', 'court', 'legal tech'],
+    keywords: ['legal', 'case management', 'law', 'professionals', 'court', 'legal tech'],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

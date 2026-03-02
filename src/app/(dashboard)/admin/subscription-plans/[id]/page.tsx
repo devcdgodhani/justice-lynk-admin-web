@@ -7,15 +7,24 @@ import { adminApi } from '@/services/admin.api';
 import {
     Settings2,
     ChevronLeft,
-    Check,
-    Save,
-    ShieldAlert,
-    Layers,
-    BarChart3,
+    ArrowLeft,
+    Shield,
+    Mail,
+    Phone,
+    Calendar,
+    Activity,
     Loader2,
+    Database,
     Trash2,
     Eye,
-    EyeOff
+    EyeOff,
+    Check,
+    ChevronUp,
+    ChevronDown,
+    ShieldAlert,
+    Save,
+    Layers,
+    BarChart3
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -39,15 +48,22 @@ export default function SubscriptionPlanDetailsPage() {
     const { id } = useParams() as { id: string };
     const queryClient = useQueryClient();
 
+    const [expandedModules, setExpandedModules] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         name: '',
         description: '',
-        price: 0,
-        billingInterval: 'monthly',
+        monthlyPrice: 0,
+        yearlyPrice: 0,
+        monthlyOfferPrice: 0,
+        yearlyOfferPrice: 0,
+        monthlyDiscount: 0,
+        yearlyDiscount: 0,
         trialDays: 0,
         isPublic: true,
         isActive: true,
+        targetUserType: 'client',
         moduleIds: [] as string[],
+        featureIds: [] as string[],
         limits: [] as any[]
     });
 
@@ -58,8 +74,8 @@ export default function SubscriptionPlanDetailsPage() {
     });
 
     const { data: modulesRes } = useQuery({
-        queryKey: ['admin-modules'],
-        queryFn: () => adminApi.getModules(),
+        queryKey: ['admin-modules', formData.targetUserType],
+        queryFn: () => adminApi.getModules(formData.targetUserType),
         select: r => r.data
     });
 
@@ -68,13 +84,19 @@ export default function SubscriptionPlanDetailsPage() {
             setFormData({
                 name: planRes.name,
                 description: planRes.description || '',
-                price: Number(planRes.price),
-                billingInterval: planRes.billingInterval,
+                monthlyPrice: Number(planRes.monthlyPrice),
+                yearlyPrice: Number(planRes.yearlyPrice),
+                monthlyOfferPrice: Number(planRes.monthlyOfferPrice || 0),
+                yearlyOfferPrice: Number(planRes.yearlyOfferPrice || 0),
+                monthlyDiscount: Number(planRes.monthlyDiscount || 0),
+                yearlyDiscount: Number(planRes.yearlyDiscount || 0),
+                targetUserType: planRes.targetUserType,
                 trialDays: planRes.trialDays,
                 isPublic: planRes.isPublic,
                 isActive: planRes.isActive,
-                moduleIds: planRes.modules.map((m: any) => m.moduleId),
-                limits: planRes.limits.map((l: any) => ({ key: l.key, value: l.value }))
+                moduleIds: planRes.modules?.map((m: any) => m.moduleId) || [],
+                featureIds: planRes.planFeatures?.map((f: any) => f.featureId) || [],
+                limits: planRes.limits?.map((l: any) => ({ key: l.key, value: l.value })) || []
             });
         }
     }, [planRes]);
@@ -107,13 +129,73 @@ export default function SubscriptionPlanDetailsPage() {
         updateMutation.mutate(formData);
     };
 
-    const toggleModule = (modId: string) => {
-        setFormData(prev => ({
-            ...prev,
-            moduleIds: prev.moduleIds.includes(modId)
-                ? prev.moduleIds.filter(m => m !== modId)
-                : [...prev.moduleIds, modId]
-        }));
+    const toggleModule = (mod: any) => {
+        setFormData(prev => {
+            const isSelected = prev.moduleIds.includes(mod.id);
+            const newModuleIds = isSelected
+                ? prev.moduleIds.filter(id => id !== mod.id)
+                : [...prev.moduleIds, mod.id];
+
+            let newFeatureIds = [...prev.featureIds];
+            if (isSelected) {
+                const modFeatureIds = mod.features?.map((f: any) => f.id) || [];
+                newFeatureIds = newFeatureIds.filter(id => !modFeatureIds.includes(id));
+            }
+
+            return {
+                ...prev,
+                moduleIds: newModuleIds,
+                featureIds: newFeatureIds
+            };
+        });
+
+        const isCurrentlySelected = formData.moduleIds.includes(mod.id);
+        if (!isCurrentlySelected && !expandedModules.includes(mod.id)) {
+            setExpandedModules(prev => [...prev, mod.id]);
+        }
+    };
+
+    const toggleFeature = (featureId: string, moduleId: string) => {
+        setFormData(prev => {
+            const isModuleSelected = prev.moduleIds.includes(moduleId);
+            const isFeatureSelected = prev.featureIds.includes(featureId);
+
+            let newModuleIds = [...prev.moduleIds];
+            if (!isModuleSelected && !isFeatureSelected) {
+                newModuleIds.push(moduleId);
+            }
+
+            const newFeatureIds = isFeatureSelected
+                ? prev.featureIds.filter(id => id !== featureId)
+                : [...prev.featureIds, featureId];
+
+            return {
+                ...prev,
+                moduleIds: newModuleIds,
+                featureIds: newFeatureIds
+            };
+        });
+    };
+
+    const selectAllFeatures = (e: React.MouseEvent, mod: any) => {
+        e.stopPropagation();
+        const modFeatureIds = mod.features?.map((f: any) => f.id) || [];
+
+        setFormData(prev => {
+            const isModuleSelected = prev.moduleIds.includes(mod.id);
+            let newModuleIds = isModuleSelected ? prev.moduleIds : [...prev.moduleIds, mod.id];
+
+            const featuresToAdd = modFeatureIds.filter((id: string) => !prev.featureIds.includes(id));
+            const newFeatureIds = [...prev.featureIds, ...featuresToAdd];
+
+            return {
+                ...prev,
+                moduleIds: newModuleIds,
+                featureIds: newFeatureIds
+            };
+        });
+
+        toast.success(`All capabilities enabled for ${mod.name}`);
     };
 
     const updateLimit = (key: string, value: number) => {
@@ -121,6 +203,13 @@ export default function SubscriptionPlanDetailsPage() {
             ...prev,
             limits: prev.limits.map(l => l.key === key ? { ...l, value } : l)
         }));
+    };
+
+    const toggleExpand = (e: React.MouseEvent, id: string) => {
+        e.stopPropagation();
+        setExpandedModules(prev =>
+            prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+        );
     };
 
     if (isLoadingPlan) {
@@ -136,7 +225,6 @@ export default function SubscriptionPlanDetailsPage() {
 
     return (
         <div className="centered-container py-12 max-w-5xl animate-fade-in space-y-12">
-            {/* Header */}
             <div className="flex flex-col gap-6">
                 <Link href="/admin/subscription-plans" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors group">
                     <ChevronLeft className="h-3 w-3 group-hover:-translate-x-1 transition-transform" /> Back to Tiers
@@ -149,9 +237,6 @@ export default function SubscriptionPlanDetailsPage() {
                         <h1 className="text-4xl font-bold font-display tracking-tight text-foreground">
                             {planRes?.name} Configuration
                         </h1>
-                        <p className="text-muted-foreground font-medium text-lg italic">
-                            Modifying existing service tiers requires caution; dependencies may be affected.
-                        </p>
                     </div>
                     <div className="flex gap-3">
                         <Button
@@ -170,7 +255,6 @@ export default function SubscriptionPlanDetailsPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Main Config */}
                 <div className="lg:col-span-2 space-y-8">
                     <Card className="rounded-[2.5rem] border-none glass overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-border/40 bg-card/40 flex items-center justify-between">
@@ -181,7 +265,7 @@ export default function SubscriptionPlanDetailsPage() {
                                 <h2 className="text-xl font-bold font-display text-foreground">Core Parameters</h2>
                             </div>
                             <Badge variant={formData.isActive ? "success" : "secondary"} className="rounded-full px-4 py-1 text-[10px] uppercase font-black tracking-widest">
-                                {formData.isActive ? "Active in Gateway" : "Suspended"}
+                                {formData.isActive ? "Active" : "Suspended"}
                             </Badge>
                         </div>
                         <CardContent className="p-10 space-y-8">
@@ -190,25 +274,16 @@ export default function SubscriptionPlanDetailsPage() {
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Plan Label</Label>
                                     <Input
                                         value={formData.name}
-                                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                        onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                         className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 text-lg font-bold"
                                     />
                                 </div>
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Billing cycle</Label>
-                                    <Select
-                                        value={formData.billingInterval}
-                                        onValueChange={v => setFormData({ ...formData, billingInterval: v })}
-                                    >
-                                        <SelectTrigger className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-2 focus:ring-primary/20 text-sm font-bold">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-none glass shadow-2xl">
-                                            <SelectItem value="monthly" className="font-bold py-3">Monthly settlement</SelectItem>
-                                            <SelectItem value="quarterly" className="font-bold py-3">Quarterly settlement</SelectItem>
-                                            <SelectItem value="yearly" className="font-bold py-3">Yearly settlement</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Target Audience</Label>
+                                    <div className="h-14 rounded-2xl bg-muted/20 border-none flex items-center px-6 text-sm font-bold capitalize text-muted-foreground cursor-not-allowed">
+                                        {formData.targetUserType.replace(/_/g, ' ')}
+                                    </div>
+                                    <p className="text-[9px] font-medium text-muted-foreground/60 ml-1 italic">Target user type cannot be modified for existing plans.</p>
                                 </div>
                             </div>
 
@@ -216,32 +291,101 @@ export default function SubscriptionPlanDetailsPage() {
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Strategic Description</Label>
                                 <textarea
                                     value={formData.description}
-                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                    onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                                     className="w-full min-h-[120px] p-6 rounded-[2rem] bg-muted/30 border-none focus:ring-2 focus:ring-primary/20 text-sm font-medium italic outline-none resize-none"
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Tier Valuation (Price)</Label>
-                                    <div className="relative">
-                                        <span className="absolute left-6 top-1/2 -translate-y-1/2 font-bold text-primary">₹</span>
+                            <div className="space-y-6">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Monthly Pricing Structure</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Base Price</Label>
+                                        <div className="relative">
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 font-bold text-primary">₹</span>
+                                            <Input
+                                                type="number"
+                                                value={formData.monthlyPrice}
+                                                onChange={e => setFormData(prev => ({ ...prev, monthlyPrice: Number(e.target.value) }))}
+                                                className="h-14 pl-12 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-mono text-lg font-bold"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Offer Price</Label>
                                         <Input
                                             type="number"
-                                            value={formData.price}
-                                            onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
-                                            className="h-14 pl-12 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-mono text-lg font-bold"
+                                            value={formData.monthlyOfferPrice}
+                                            onChange={e => setFormData(prev => ({ ...prev, monthlyOfferPrice: Number(e.target.value) }))}
+                                            className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-bold"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Discount %</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.monthlyDiscount}
+                                            onChange={e => setFormData(prev => ({ ...prev, monthlyDiscount: Number(e.target.value) }))}
+                                            className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-bold"
                                         />
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="space-y-6 pt-4">
+                                <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground border-b border-border/40 pb-2">Yearly Pricing Structure</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Base Price</Label>
+                                        <div className="relative">
+                                            <span className="absolute left-6 top-1/2 -translate-y-1/2 font-bold text-primary">₹</span>
+                                            <Input
+                                                type="number"
+                                                value={formData.yearlyPrice}
+                                                onChange={e => setFormData(prev => ({ ...prev, yearlyPrice: Number(e.target.value) }))}
+                                                className="h-14 pl-12 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-mono text-lg font-bold"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Offer Price</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.yearlyOfferPrice}
+                                            onChange={e => setFormData(prev => ({ ...prev, yearlyOfferPrice: Number(e.target.value) }))}
+                                            className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-bold"
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Discount %</Label>
+                                        <Input
+                                            type="number"
+                                            value={formData.yearlyDiscount}
+                                            onChange={e => setFormData(prev => ({ ...prev, yearlyDiscount: Number(e.target.value) }))}
+                                            className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-bold"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-border/40">
                                 <div className="space-y-3">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Account Lifecycle Management</Label>
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Trial Days</Label>
+                                    <Input
+                                        type="number"
+                                        value={formData.trialDays}
+                                        onChange={e => setFormData(prev => ({ ...prev, trialDays: Number(e.target.value) }))}
+                                        className="h-14 rounded-2xl bg-muted/30 border-none focus-visible:ring-2 focus-visible:ring-primary/20 font-bold"
+                                    />
+                                </div>
+                                <div className="space-y-3">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-primary ml-1">Visibility & Status</Label>
                                     <div className="flex gap-4 items-center h-14">
                                         <div className="flex items-center gap-3 bg-muted/10 px-4 py-2 rounded-xl">
                                             <Checkbox
                                                 id="isPublic"
                                                 checked={formData.isPublic}
-                                                onCheckedChange={v => setFormData({ ...formData, isPublic: !!v })}
+                                                onCheckedChange={v => setFormData(prev => ({ ...prev, isPublic: !!v }))}
                                             />
                                             <Label htmlFor="isPublic" className="text-xs font-bold cursor-pointer flex items-center gap-2">
                                                 {formData.isPublic ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />} Marketplace
@@ -251,9 +395,11 @@ export default function SubscriptionPlanDetailsPage() {
                                             <Checkbox
                                                 id="isActive"
                                                 checked={formData.isActive}
-                                                onCheckedChange={v => setFormData({ ...formData, isActive: !!v })}
+                                                onCheckedChange={v => setFormData(prev => ({ ...prev, isActive: !!v }))}
                                             />
-                                            <Label htmlFor="isActive" className="text-xs font-bold cursor-pointer">Live Gateway</Label>
+                                            <Label htmlFor="isActive" className="text-xs font-bold cursor-pointer flex items-center gap-2">
+                                                {formData.isActive ? <Activity className="h-3 w-3 text-success" /> : <Activity className="h-3 w-3 text-muted-foreground" />} Status
+                                            </Label>
                                         </div>
                                     </div>
                                 </div>
@@ -261,53 +407,108 @@ export default function SubscriptionPlanDetailsPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Module Integration */}
+                    {/* Operational Capabilities Selection */}
                     <Card className="rounded-[2.5rem] border-none glass overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-border/40 bg-card/40 flex items-center justify-between">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 rounded-xl bg-primary/10">
                                     <Layers className="h-5 w-5 text-primary" />
                                 </div>
-                                <h2 className="text-xl font-bold font-display text-foreground">Operational Modules</h2>
+                                <h2 className="text-xl font-bold font-display text-foreground">Operational Capabilities</h2>
+                            </div>
+                            <div className="flex gap-4">
+                                <Badge variant="outline" className="rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest text-primary border-primary/20">
+                                    {formData.moduleIds.length} Modules
+                                </Badge>
+                                <Badge variant="outline" className="rounded-full px-4 py-1 text-[10px] font-black uppercase tracking-widest text-secondary border-secondary/20">
+                                    {formData.featureIds.length} Features
+                                </Badge>
                             </div>
                         </div>
-                        <CardContent className="p-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {modulesRes?.map((mod: any) => (
-                                    <div
-                                        key={mod.id}
-                                        onClick={() => toggleModule(mod.id)}
+                        <CardContent className="p-10 space-y-6">
+                            {modulesRes?.map((mod: any) => (
+                                <div key={mod.id} className="space-y-4">
+                                    <div 
+                                        onClick={() => toggleModule(mod)}
                                         className={cn(
-                                            "p-6 rounded-[2rem] border-2 transition-all cursor-pointer group flex items-start gap-4",
+                                            "p-6 rounded-[2rem] border-2 transition-all cursor-pointer group flex items-center justify-between",
                                             formData.moduleIds.includes(mod.id)
-                                                ? "bg-primary/5 border-primary shadow-lg shadow-primary/10"
+                                                ? "bg-primary/5 border-primary"
                                                 : "bg-muted/10 border-transparent hover:border-border/60"
                                         )}
                                     >
-                                        <div className={cn(
-                                            "mt-1 h-6 w-6 rounded-lg flex items-center justify-center transition-all border-2",
-                                            formData.moduleIds.includes(mod.id)
-                                                ? "bg-primary border-primary text-white"
-                                                : "border-border/40 text-transparent"
-                                        )}>
-                                            <Check className="h-3 w-3 stroke-[4]" />
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn(
+                                                "h-6 w-6 rounded-lg flex items-center justify-center transition-all border-2",
+                                                formData.moduleIds.includes(mod.id)
+                                                    ? "bg-primary border-primary text-white"
+                                                    : "border-border/40 text-transparent"
+                                            )}>
+                                                <Check className="h-3 w-3 stroke-[4]" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-foreground">
+                                                    {mod.name}
+                                                </h4>
+                                                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                                                    {mod.key}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 className="font-bold text-foreground transition-colors group-hover:text-primary">
-                                                {mod.name}
-                                            </h4>
-                                            <p className="text-[10px] font-medium text-muted-foreground mt-0.5 uppercase tracking-wider">
-                                                {mod.key}
-                                            </p>
+                                        <div className="flex gap-2">
+                                            {expandedModules.includes(mod.id) && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={(e) => selectAllFeatures(e, mod)}
+                                                    className="h-8 rounded-lg text-[9px] font-black uppercase tracking-widest text-primary hover:bg-primary/10"
+                                                >
+                                                    Enable All
+                                                </Button>
+                                            )}
+                                            <button
+                                                onClick={(e) => toggleExpand(e, mod.id)}
+                                                className="p-2 hover:bg-muted/20 rounded-full transition-colors"
+                                            >
+                                                {expandedModules.includes(mod.id) ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                            </button>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+
+                                    {/* Features list as before */}
+                                    {expandedModules.includes(mod.id) && (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8 animate-in slide-in-from-top-2 duration-300">
+                                            {mod.features?.map((feat: any) => (
+                                                <div
+                                                    key={feat.id}
+                                                    onClick={() => toggleFeature(feat.id, mod.id)}
+                                                    className={cn(
+                                                        "p-4 rounded-2xl border transition-all cursor-pointer flex items-center gap-3",
+                                                        formData.featureIds.includes(feat.id)
+                                                            ? "bg-secondary/5 border-secondary shadow-sm"
+                                                            : "bg-muted/5 border-transparent hover:border-border/40"
+                                                    )}
+                                                >
+                                                    <div className={cn(
+                                                        "h-4 w-4 rounded flex items-center justify-center transition-all border",
+                                                        formData.featureIds.includes(feat.id)
+                                                            ? "bg-secondary border-secondary text-white"
+                                                            : "border-border/40 text-transparent"
+                                                    )}>
+                                                        <Check className="h-2 w-2 stroke-[4]" />
+                                                    </div>
+                                                    <span className="text-sm font-semibold">{feat.name}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </CardContent>
                     </Card>
                 </div>
 
-                {/* Constraints Sidebar */}
                 <div className="space-y-8">
                     <Card className="rounded-[2.5rem] border-none glass overflow-hidden shadow-2xl">
                         <div className="p-8 border-b border-border/40 bg-card/40 flex items-center gap-3">
@@ -351,9 +552,6 @@ export default function SubscriptionPlanDetailsPage() {
                                     </div>
                                 </div>
                             ))}
-                            {!formData.limits.length && (
-                                <p className="text-[10px] font-bold text-muted-foreground italic text-center">No capacity constraints defined.</p>
-                            )}
                         </CardContent>
                     </Card>
 

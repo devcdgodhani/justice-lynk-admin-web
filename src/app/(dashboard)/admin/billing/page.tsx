@@ -98,7 +98,7 @@ export default function BillingAdminPage() {
                 ) : (
                     <div className="p-8">
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                            {monthlyRevenue.map((m) => (
+                                    {monthlyRevenue?.map((m) => (
                                 <div key={m.month} className="p-6 rounded-3xl bg-muted/30 border border-border/40 hover:bg-muted/50 transition-all group">
                                     <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-2 group-hover:text-primary transition-colors">{m.month}</p>
                                     <p className="text-lg font-bold text-foreground font-mono group-hover:text-primary transition-colors">

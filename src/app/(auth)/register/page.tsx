@@ -108,7 +108,7 @@ export default function RegisterPage() {
                         </div>
                         <div className="text-center">
                             <p className="font-semibold text-foreground">Professional</p>
-                            <p className="text-xs text-muted-foreground mt-1">Advocate / Detective</p>
+                            <p className="text-xs text-muted-foreground mt-1">Professional / Detective</p>
                         </div>
                     </button>
                 </div>

@@ -55,6 +55,8 @@ export interface User {
     phone?: string;
     role: string;
     userType?: string;
+    approvalStatus?: 'pending' | 'approved' | 'rejected' | 'suspended';
+    approvalNote?: string;
     avatar?: string;
     isActive: boolean;
     isSuperAdmin?: boolean;
@@ -172,21 +174,33 @@ export interface Notification {
     createdAt: string;
 }
 
+export interface PlanLimit {
+    id: string;
+    planId: string;
+    key: string;
+    value: number;
+}
+
 export interface Plan {
     id: string;
     name: string;
     description?: string;
-    price: number;
-    currency: string;
-    billingCycle: string;
-    features?: Record<string, unknown>;
-    maxUsers?: number;
-    maxCases?: number;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    monthlyOfferPrice?: number;
+    yearlyOfferPrice?: number;
+    monthlyDiscount?: number;
+    yearlyDiscount?: number;
+    isActive: boolean;
+    isPublic: boolean;
+    targetUserType: string;
+    limits: PlanLimit[];
+    modules: any[];
 }
 
 export interface Subscription {
     id: string;
-    orgId: string;
+    userId: string;
     planId: string;
     status: string;
     startDate: string;
@@ -196,7 +210,7 @@ export interface Subscription {
 
 export interface Payment {
     id: string;
-    orgId: string;
+    userId: string;
     amount: number;
     currency: string;
     status: string;
@@ -215,16 +229,19 @@ export interface RazorpayOrder {
 export interface Professional {
     id: string;
     userId: string;
-    type: string;
     bio?: string;
-    licenseNumber?: string;
+    barRegistration?: string;
     specializations?: string[];
     experienceYears?: number;
+    location?: string;
+    hourlyRate?: number;
+    type?: string;
     city?: string;
     state?: string;
     country?: string;
-    hourlyRate?: number;
-    isVerified: boolean;
+    licenseNumber?: string;
+    isVerified?: boolean;
+    status: string;
     user?: User;
 }
 

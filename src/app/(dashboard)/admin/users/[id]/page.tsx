@@ -14,6 +14,8 @@ import {
     Activity, 
     UserX, 
     UserCheck,
+    CheckCircle2,
+    XCircle,
     Loader2,
     Database,
     Fingerprint,
@@ -58,6 +60,18 @@ export default function UserDetailPage() {
         },
         onError: () => {
             toast.error('Deletion failed');
+        }
+    });
+
+    const statusMutation = useMutation({
+        mutationFn: ({ status, note }: { status: 'approved' | 'rejected' | 'pending' | 'suspended'; note?: string }) =>
+            adminApi.updateApprovalStatus(id as string, status, note),
+        onSuccess: (res) => {
+            queryClient.invalidateQueries({ queryKey: ['admin-user', id] });
+            toast.success(res.message || 'Status updated');
+        },
+        onError: () => {
+            toast.error('Failed to update approval status');
         }
     });
 
@@ -110,6 +124,29 @@ export default function UserDetailPage() {
                     >
                         {user.isActive ? <><UserX className="mr-2 h-3.5 w-3.5" /> Suspend</> : <><UserCheck className="mr-2 h-3.5 w-3.5" /> Activate</>}
                     </Button>
+                    {user.approvalStatus === 'pending' && (
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="gradient"
+                                className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-11"
+                                onClick={() => statusMutation.mutate({ status: 'approved' })}
+                                disabled={statusMutation.isPending}
+                            >
+                                <CheckCircle2 className="mr-2 h-3.5 w-3.5" /> Approve
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-11 text-destructive border-destructive/20 hover:bg-destructive/10"
+                                onClick={() => {
+                                    const note = prompt('Reason for rejection:');
+                                    if (note !== null) statusMutation.mutate({ status: 'rejected', note });
+                                }}
+                                disabled={statusMutation.isPending}
+                            >
+                                <XCircle className="mr-2 h-3.5 w-3.5" /> Reject
+                            </Button>
+                        </div>
+                    )}
                     <Button 
                         variant="destructive" 
                         className="rounded-xl font-bold uppercase tracking-widest text-[10px] h-11 shadow-xl shadow-destructive/20"
@@ -140,6 +177,25 @@ export default function UserDetailPage() {
                                 <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", user.isActive ? "text-success" : "text-muted-foreground/40")}>
                                     {user.isActive ? 'Status: Active' : 'Status: Restricted'}
                                 </span>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 pt-2">
+                                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Application Status</p>
+                                <Badge
+                                    className={cn(
+                                        "rounded-lg px-3 py-1 text-[10px] font-black uppercase tracking-widest border-none",
+                                        user.approvalStatus === 'approved' ? "bg-success/10 text-success" :
+                                            user.approvalStatus === 'pending' ? "bg-warning/10 text-warning" :
+                                                user.approvalStatus === 'rejected' ? "bg-destructive/10 text-destructive" :
+                                                    "bg-muted text-muted-foreground"
+                                    )}
+                                >
+                                    {user.approvalStatus || 'None'}
+                                </Badge>
+                                {user.approvalNote && (
+                                    <p className="text-[10px] text-destructive italic mt-1 max-w-[200px] break-words">
+                                        &quot;{user.approvalNote}&quot;
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </Card>
